@@ -6,14 +6,12 @@
 <title>家庭医疗记录工作台</title>
 <style>
   :root{
-    --accent:#3b82f6; --accent-dark:#1f7a3a; --accent-soft:#f0fdf4;
+    --accent:#16a34a; --accent-dark:#15803d; --accent-soft:#f0fdf4;
     --bg:#f6faf6; --card:#ffffff;
     --text:#1f2937; --muted:#6b7280; --border:#e5e7eb; --danger:#ef4444;
-    --green:#16a34a; --green-soft:#f0fdf4; --green-border:#bbf7d0;
-    --shadow:0 1px 2px rgba(0,0,0,.04);
-    --radius:16px;
+    --shadow:0 1px 2px rgba(0,0,0,.04); --radius:16px;
   }
-  html[data-theme="green"]{--accent:#16a34a;--accent-dark:#15803d;--accent-soft:#f0fdf4;}
+  html[data-theme="forest"]{--accent:#16a34a;--accent-dark:#15803d;--accent-soft:#f0fdf4;}
   html[data-theme="blue"]{--accent:#3b82f6;--accent-dark:#1d4ed8;--accent-soft:#eff6ff;}
   html[data-theme="purple"]{--accent:#8b5cf6;--accent-dark:#6d28d9;--accent-soft:#f5f3ff;}
   html[data-theme="rose"]{--accent:#f43f5e;--accent-dark:#be123c;--accent-soft:#fff1f2;}
@@ -27,16 +25,13 @@
   header .sub{color:var(--muted);font-size:13px;margin-top:4px;}
   .top-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;justify-content:flex-end;}
   .btn{border:1px solid var(--border);background:var(--card);color:var(--text);padding:8px 14px;
-    border-radius:10px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;
-    transition:.15s;}
+    border-radius:10px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px;transition:.15s;}
   .btn:hover{border-color:var(--accent);color:var(--accent);}
   .btn.primary{background:var(--accent);color:#fff;border-color:var(--accent);}
   .btn.primary:hover{filter:brightness(.95);}
   .btn.ghost{border:none;background:transparent;}
-
   .container{max-width:1280px;margin:0 auto;padding:0 24px;}
 
-  /* 成员大卡 */
   .member-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
     padding:14px 18px;display:flex;align-items:center;gap:14px;margin-bottom:14px;}
   .member-card .avatar{width:48px;height:48px;border-radius:50%;background:var(--accent-soft);
@@ -46,7 +41,6 @@
   .member-card .count{font-weight:400;color:var(--muted);font-size:12px;}
   .member-card .edit-icon{color:var(--muted);cursor:pointer;border:none;background:none;padding:4px;}
 
-  /* profile 行 */
   .profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
     padding:14px 18px;margin-bottom:14px;}
   .profile-row{display:flex;gap:24px;flex-wrap:wrap;align-items:center;font-size:13px;}
@@ -56,15 +50,13 @@
   .hosp-line{margin-top:8px;color:var(--text);font-size:13px;}
   .hosp-line .lbl{color:var(--muted);margin-right:6px;}
 
-  /* 文件上传卡 */
   .file-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
     padding:14px 18px;margin-bottom:14px;}
   .file-card .head{display:flex;align-items:center;justify-content:space-between;}
-  .file-card .head .title{display:flex;align-items:center;gap:6px;color:var(--text);font-weight:500;}
+  .file-card .head .title{display:flex;align-items:center;gap:6px;font-weight:500;}
   .file-card .hint{color:var(--muted);font-size:12px;margin-top:8px;}
   #filesList{margin-top:8px;}
 
-  /* 统计 */
   .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px;}
   .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:16px 18px;}
   .stat .num{font-size:28px;font-weight:700;}
@@ -73,16 +65,12 @@
     padding:16px 18px;display:flex;align-items:center;justify-content:center;color:var(--muted);cursor:pointer;}
   .stat-add:hover{border-color:var(--accent);color:var(--accent);}
 
-  /* 主区两列 */
   .main{display:grid;grid-template-columns:380px 1fr;gap:14px;align-items:start;}
   @media(max-width:980px){.main{grid-template-columns:1fr;} .stats{grid-template-columns:repeat(2,1fr);}}
 
-  /* 新增记录卡 */
   .form-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
   .form-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-  .form-card .head .title{font-weight:600;}
-  .form-card .head .who{color:var(--muted);font-size:13px;}
-  .form-card .head .who b{color:var(--text);}
+  .form-card .who{color:var(--muted);font-size:13px;}
 
   input,select,textarea{width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:9px;
     font-size:13px;font-family:inherit;background:#fff;color:var(--text);}
@@ -92,25 +80,19 @@
   .row2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
   .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;}
 
-  /* 趋势图卡 */
   .chart-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;}
   .chart-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
-  .chart-card .head .title{font-weight:600;}
-  .chart-card .head .meta{color:var(--muted);font-size:12px;}
-  .chart-card .head .meta a{color:var(--accent);cursor:pointer;background:none;border:none;padding:0;}
+  .chart-card .meta{color:var(--muted);font-size:12px;}
+  .chart-card .meta a,.chart-card .meta button{color:var(--accent);cursor:pointer;background:none;border:none;padding:0;font-size:12px;}
   .chart-legend{display:flex;flex-wrap:wrap;gap:18px;margin-top:10px;}
   .chart-legend .lg{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;color:var(--muted);}
   .chart-legend .lg .sw{width:10px;height:10px;border-radius:50%;}
   .chart-legend .lg.off{opacity:.4;text-decoration:line-through;}
 
-  /* 记录时间线 */
   .timeline-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-top:14px;}
   .timeline-card .head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;}
-  .timeline-card .head .title{font-weight:600;}
-  .timeline-filter{padding:7px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;
-    background:#fff;}
+  .timeline-filter{padding:7px 12px;border:1px solid var(--border);border-radius:9px;font-size:13px;background:#fff;}
 
-  /* 输血分行展示 */
   .record{border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:10px;background:var(--card);}
   .record .rhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
   .record .rtag{display:inline-block;padding:4px 10px;border-radius:8px;background:var(--accent-soft);
@@ -118,22 +100,20 @@
   .record .rdate{color:var(--muted);font-size:13px;}
   .record .del-btn{color:var(--muted);background:none;border:none;cursor:pointer;font-size:12px;}
   .record .del-btn:hover{color:var(--danger);}
-  .transfusion-list{margin-top:4px;}
+  .kv{display:flex;gap:6px;margin:2px 0;}
+  .kv .k{color:var(--muted);min-width:70px;}
+  /* 输血分行 */
   .tf-line{display:flex;justify-content:space-between;padding:5px 0;font-size:14px;gap:12px;}
   .tf-line .tf-lbl{color:var(--muted);}
   .tf-line .tf-val{font-weight:600;color:var(--text);}
   .tf-line.sum{border-top:1px dashed var(--border);margin-top:4px;padding-top:7px;font-weight:700;color:var(--accent-dark);}
   .tf-line.count{color:var(--muted);font-size:13px;}
   .tf-line.count .tf-val{color:var(--text);font-weight:600;}
-  .bag-summary{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
-  .bag-pill{display:inline-flex;gap:4px;padding:3px 10px;border-radius:999px;background:var(--accent-soft);
-    color:var(--accent);font-size:12px;font-weight:600;}
-
   .empty{color:var(--muted);text-align:center;padding:32px 0;font-size:13px;}
+  .chart-svg-wrap{width:100%;}
+  .chart-empty{height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
 
-  /* 弹窗 */
-  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;
-    justify-content:center;z-index:100;padding:16px;}
+  .modal-mask{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;align-items:center;justify-content:center;z-index:100;padding:16px;}
   .modal-mask.open{display:flex;}
   .modal{background:var(--card);border-radius:14px;width:100%;max-width:520px;max-height:88vh;overflow:auto;padding:22px;}
   .modal h3{margin:0 0 16px;font-size:16px;}
@@ -141,20 +121,6 @@
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#111827;color:#fff;
     padding:10px 18px;border-radius:10px;font-size:13px;z-index:200;opacity:0;transition:.25s;pointer-events:none;}
   .toast.show{opacity:1;}
-
-  .cfg-series{display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap;}
-  .cfg-series input[type=text],.cfg-series input[type=number]{flex:1;min-width:80px;}
-  .cfg-series input[type=color]{width:36px;padding:2px;height:36px;flex:0;}
-
-  .pill{display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:999px;
-    background:var(--accent-soft);color:var(--accent);font-size:12px;}
-
-  /* 图表占位 */
-  .chart-svg-wrap{width:100%;overflow:hidden;}
-  .chart-empty{height:120px;display:flex;align-items:center;justify-content:center;color:var(--muted);}
-
-  table{border-collapse:collapse;width:100%;font-size:12px;}
-  th,td{border:1px solid var(--border);padding:5px 8px;text-align:left;}
 </style>
 </head>
 <body>
@@ -174,11 +140,8 @@
 </header>
 
 <div class="container">
-
-  <!-- 成员大卡 -->
   <div id="memberTop"></div>
 
-  <!-- 文件卡 -->
   <div class="file-card">
     <div class="head">
       <div class="title">📎 医疗文件照片 / PDF</div>
@@ -189,59 +152,70 @@
     <div class="hint">支持图片和 PDF。文件保存在本机浏览器，建议定期导出备份。</div>
   </div>
 
-  <!-- 统计 -->
   <div class="stats" id="statGrid"></div>
 
-  <!-- 主区两列 -->
   <div class="main">
-    <!-- 新增记录 -->
     <div class="form-card">
       <div class="head">
-        <div class="title">新增记录</div>
+        <div style="font-weight:600;">新增记录</div>
         <div class="who">· <b id="curMemberName">—</b></div>
       </div>
       <div class="form-row">
         <label>记录类型</label>
-        <select id="selType"></select>
+        <select id="selType">
+          <option>输血记录</option>
+          <option>化疗记录</option>
+          <option>看诊预约</option>
+          <option>CBC血常规</option>
+          <option>体征测量</option>
+          <option>住院记录</option>
+        </select>
       </div>
       <div id="formFields"></div>
       <button class="btn primary" id="btnSaveRecord" style="width:100%;margin-top:8px;padding:11px;">保存记录</button>
     </div>
 
-    <!-- 趋势图 -->
     <div class="chart-card">
       <div class="head">
-        <div class="title">趋势图</div>
-        <div class="meta">单位不同，分图展示 · 点图例可隐藏 · <button class="ghost" id="btnCfgChart" style="color:var(--accent);">⚙ 配置图表</button></div>
+        <div style="font-weight:600;">趋势图</div>
+        <div class="meta">单位不同，分图展示 · 点图例可隐藏 · <button id="btnCfgChart">⚙ 配置图表</button></div>
       </div>
       <div id="charts" class="chart-svg-wrap"></div>
       <div class="chart-legend" id="chartLegend"></div>
     </div>
   </div>
 
-  <!-- 记录时间线 -->
   <div class="timeline-card">
     <div class="head">
-      <div class="title">记录时间线</div>
-      <select class="timeline-filter" id="tlFilter"></select>
+      <div style="font-weight:600;">记录时间线</div>
+      <select class="timeline-filter" id="tlFilter">
+        <option value="全部">全部</option>
+        <option>输血记录</option>
+        <option>化疗记录</option>
+        <option>看诊预约</option>
+        <option>CBC血常规</option>
+        <option>体征测量</option>
+        <option>住院记录</option>
+      </select>
     </div>
     <div id="recordList"></div>
   </div>
 </div>
 
-<!-- 添加/编辑成员弹窗 -->
+<!-- 添加/编辑成员 -->
 <div class="modal-mask" id="memberModal">
   <div class="modal">
     <h3 id="memberModalTitle">添加家庭成员</h3>
     <div class="form-row"><label>姓名</label><input id="mName"></div>
+    <div class="form-row"><label>关系（可选）</label><input id="mRel" placeholder="如 祖父 / 母亲"></div>
     <div class="form-row"><label>医院清单（可添加多家，含电话号码）</label>
       <div id="hospitalList"></div>
       <button class="btn ghost" id="btnAddHospital" style="color:var(--accent);padding-left:0;">＋ 添加医院</button>
     </div>
     <div class="row2">
-      <div class="form-row"><label>出生日期</label><input id="mBirth" type="date"></div>
+      <div class="form-row"><label>出生日期</label><input id="mDob" type="date"></div>
       <div class="form-row"><label>血型</label>
-        <select id="mBlood"><option value="">—</option><option>A</option><option>B</option><option>O</option><option>AB</option><option>A+</option><option>B+</option><option>O+</option><option>AB+</option><option>A-</option><option>B-</option><option>O-</option><option>AB-</option></select>
+        <select id="mBlood"><option value="">—</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>O+</option><option>O-</option><option>AB+</option><option>AB-</option></select>
       </div>
     </div>
     <div class="row2">
@@ -256,7 +230,7 @@
   </div>
 </div>
 
-<!-- 主题弹窗 -->
+<!-- 主题 -->
 <div class="modal-mask" id="themeModal">
   <div class="modal">
     <h3>选择主题色</h3>
@@ -269,7 +243,7 @@
 <div class="modal-mask" id="chartModal">
   <div class="modal">
     <h3>配置图表系列</h3>
-    <p style="color:var(--muted);font-size:12px;margin:0 0 10px;">不同记录类型提供不同的数值字段。每个成员独立保存自己的图表系列配置。</p>
+    <p style="color:var(--muted);font-size:12px;margin:0 0 10px;">不同记录类型提供不同的数值字段。每个成员独立保存。</p>
     <div id="seriesList"></div>
     <button class="btn ghost" id="btnAddSeries" style="color:var(--accent);padding-left:0;">＋ 添加系列</button>
     <div class="modal-actions">
@@ -296,334 +270,255 @@
   </div>
 </div>
 
-<!-- 添加自定义统计 -->
-<div class="modal-mask" id="statModal">
-  <div class="modal">
-    <h3>添加自定义统计</h3>
-    <div class="form-row"><label>显示名称</label><input id="csName"></div>
-    <div class="form-row"><label>基于记录类型</label><select id="csType"></select></div>
-    <div class="form-row"><label>统计方式</label>
-      <select id="csMethod">
-        <option value="count">次数</option>
-        <option value="sum">总和</option>
-        <option value="avg">平均</option>
-        <option value="max">最大</option>
-        <option value="min">最小</option>
-        <option value="last">最近一次</option>
-      </select>
-    </div>
-    <div class="form-row" id="csFieldRow"><label>数值字段</label><select id="csField"></select>
-      <div style="color:var(--muted);font-size:12px;margin-top:4px;">「次数」无需选字段。</div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn" data-close="statModal">取消</button>
-      <button class="btn primary" id="btnSaveStat">添加</button>
-    </div>
-  </div>
-</div>
-
 <div class="toast" id="toast"></div>
 
 <script>
-/* ================= 数据 ================= */
-const STORE_KEY='family_medical_v2';
-const RECORD_TYPES=['看诊预约','化疗','输血','CBC血常规','就诊','住院','体征测量','用药清单','检查报告','自定义'];
-const TYPE_FIELDS={
-  '看诊预约':[{k:'date',label:'日期',t:'date'},{k:'time',label:'预约时间（可选）',t:'time'},
-    {k:'doctor',label:'医生名',t:'text'},{k:'dept',label:'科室',t:'text'},{k:'hospital',label:'医院',t:'text'}],
-  '化疗':[{k:'date',label:'日期',t:'date'},{k:'time',label:'预约时间（可选）',t:'time'},
-    {k:'doctor',label:'医生名',t:'text'},{k:'dept',label:'科室',t:'text'},{k:'hospital',label:'医院',t:'text'},
-    {k:'start',label:'开始日期',t:'date'},{k:'end',label:'结束日期',t:'date'},
-    {k:'regimen',label:'化疗方案 / 药名',t:'text'},{k:'cycle',label:'第几周期',t:'number'},
-    {k:'cycleLen',label:'周期 / 21天（可选）',t:'number'}],
-  '输血':[{k:'date',label:'日期',t:'date'},{k:'bags',label:'血袋（每袋毫升，日期取上方日期）',t:'bags'}],
-  'CBC血常规':[{k:'date',label:'日期',t:'date'},{k:'hgb',label:'HGB',t:'number'},{k:'hct',label:'HCT',t:'number'},
-    {k:'plt',label:'PLT',t:'number'},{k:'neut',label:'NEUT',t:'number'},{k:'others',label:'其他指标',t:'metrics'}],
-  '就诊':[{k:'date',label:'日期',t:'date'},{k:'doctor',label:'医生名',t:'text'},{k:'dept',label:'科室',t:'text'},
-    {k:'hospital',label:'医院',t:'text'},{k:'fee',label:'金额',t:'number'},{k:'note',label:'整条备注',t:'textarea'}],
-  '住院':[{k:'start',label:'开始日期',t:'date'},{k:'end',label:'结束日期',t:'date'},{k:'reason',label:'入院原因',t:'text'},
-    {k:'ward',label:'病房/床位（可选）',t:'text'},{k:'hospital',label:'医院',t:'text'}],
-  '体征测量':[{k:'date',label:'日期',t:'date'},{k:'time',label:'时间（可选）',t:'time'},
-    {k:'bp',label:'血压 mmHg',t:'text'},{k:'temp',label:'体温 ℃',t:'number'},{k:'spo2',label:'血氧 %',t:'number'},
-    {k:'hr',label:'心率 次/分',t:'number'},{k:'weight',label:'体重 kg',t:'number'},{k:'sugar',label:'血糖 mmol',t:'number'}],
-  '用药清单':[{k:'date',label:'日期',t:'date'},{k:'meds',label:'药品（可添加多条）',t:'meds'}],
-  '检查报告':[{k:'date',label:'报告日期',t:'date'},{k:'title',label:'报告标题（可选）',t:'text'},
-    {k:'src',label:'报告来源 / 医院实验室（可选）',t:'text'},{k:'metrics',label:'指标列表',t:'metrics'}],
-  '自定义':[{k:'start',label:'开始日期',t:'date'},{k:'end',label:'结束日期（可选）',t:'date'},
-    {k:'fields',label:'手动字段',t:'fields'},{k:'note',label:'整条备注',t:'textarea'}]
-};
-const NUMERIC_FIELDS={
-  '看诊预约':[],
-  '化疗':['cycle','cycleLen'],'输血':[],'CBC血常规':['hgb','hct','plt','neut'],
-  '就诊':['fee'],'住院':[],'体征测量':['temp','spo2','hr','weight','sugar'],
-  '用药清单':[],'检查报告':[],'自定义':[]
-};
+/* ===== 数据层：兼容用户原版 schema ===== */
+const STORE_KEY='family_medical_v3';
+const TYPES=['输血记录','化疗记录','看诊预约','CBC血常规','体征测量','住院记录'];
+const THEMES=[['forest','🌲 森林绿'],['blue','🔵 蓝'],['purple','🟣 紫'],['rose','🔴 玫红'],['amber','🟠 橙']];
+
 let state=load();
-function load(){try{const d=JSON.parse(localStorage.getItem(STORE_KEY));if(d)return d;}catch(e){}
-  return {members:[],current:null,customStats:[],chartSeries:{},theme:'green'};}
+function load(){
+  try{const d=JSON.parse(localStorage.getItem(STORE_KEY));if(d&&d.members)return d;}catch(e){}
+  const def=defaultState(); def.current=def.members[0].id; return def;
+}
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
-const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,7);
+// 首次无数据时的默认结构（用户导入后会覆盖）
+function defaultState(){
+  return {members:[{id:'m'+Date.now(),name:'',emoji:'🧑',dob:'',blood:'',weight:'',height:'',hospitals:[],files:[],chartSeries:[]}],
+    records:[],current:null,theme:'forest'};
+}
+const uid=()=>'r'+Date.now()+Math.floor(Math.random()*1000);
 const $=(s)=>document.querySelector(s);
 const esc=(s)=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const fmt=(n)=>(n===null||n===undefined||n==='')?'—':n;
 function toast(msg){const t=$('#toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),1800);}
 const curMember=()=>state.members.find(m=>m.id===state.current);
 
-/* ================= 头部 & 成员卡 ================= */
+/* ===== 头部 & 成员卡 ===== */
 function renderMemberTop(){
-  const m=curMember();
-  const top=$('#memberTop'); top.innerHTML='';
+  const m=curMember(); const top=$('#memberTop'); top.innerHTML='';
   if(!m){top.innerHTML='<div class="empty">请先添加家庭成员</div>';return;}
   const card=document.createElement('div'); card.className='member-card';
   card.innerHTML=`<div class="avatar">${esc(m.emoji||'🧑')}</div>
-    <div class="info">
-      <div class="name">${esc(m.name)} <span class="count">${(m.records||[]).length} 条记录</span></div>
-    </div>
+    <div class="info"><div class="name">${esc(m.name)} ${m.rel?`<span class="count">（${esc(m.rel)}）</span>`:''} <span class="count">${(state.records||[]).filter(r=>r.member===m.id).length} 条记录</span></div></div>
     <button class="edit-icon" id="btnEditMember" title="编辑资料">✎</button>`;
   top.appendChild(card);
-
-  // 档案 + 医院
-  const age=m.birth?calcAge(m.birth):null;
+  const age=m.dob?calcAge(m.dob):null;
   const profile=document.createElement('div'); profile.className='profile-card';
+  const bmi=(m.weight&&m.height)?Math.round(m.weight/((m.height/100)**2)*10)/10:null;
   profile.innerHTML=`<div class="profile-row">
-    <span><span class="lbl">出生</span><span class="val">${esc(m.birth||'—')}${age?`（${age} 岁）`:''}</span></span>
+    <span><span class="lbl">出生</span><span class="val">${esc(m.dob||'—')}${age?`（${age} 岁）`:''}</span></span>
     <span><span class="lbl">血型</span><span class="val">${esc(m.blood||'—')}</span></span>
     <span><span class="lbl">体重</span><span class="val">${esc(m.weight||'—')}${m.weight?' kg':''}</span></span>
     <span><span class="lbl">身高</span><span class="val">${esc(m.height||'—')}${m.height?' cm':''}</span></span>
-    <span><span class="lbl">BMI</span><span class="val">${esc(m.bmi||'—')}</span></span>
-    <button class="edit-link" id="btnEditProfile">编辑资料</button>
-  </div>
-  ${(m.hospitals&&m.hospitals.length)?`<div class="hosp-line"><span class="lbl">常用医院：</span>${m.hospitals.map((h,i)=>`${esc(h.name)}${h.phone?` · ${esc(h.phone)}`:''}`).join('  |  ')}</div>`:''}`;
+    <span><span class="lbl">BMI</span><span class="val">${esc(bmi||'—')}</span></span>
+    <button class="edit-link" id="btnEditProfile">编辑资料</button></div>
+  ${(m.hospitals&&m.hospitals.length)?`<div class="hosp-line"><span class="lbl">常用医院：</span>${m.hospitals.map(h=>`${esc(h.name)}${h.phone?` · ${esc(h.phone)}`:''}`).join('  |  ')}</div>`:''}`;
   top.appendChild(profile);
-
   $('#btnEditMember').onclick=$('#btnEditProfile').onclick=()=>openMemberModal(m);
 }
-function calcAge(birth){
-  const b=new Date(birth),now=new Date(); let age=now.getFullYear()-b.getFullYear();
-  const m=now.getMonth()-b.getMonth(); if(m<0||(m===0&&now.getDate()<b.getDate())) age--; return age;
-}
+function calcAge(birth){const b=new Date(birth),now=new Date();let a=now.getFullYear()-b.getFullYear();const m=now.getMonth()-b.getMonth();if(m<0||(m===0&&now.getDate()<b.getDate()))a--;return a;}
 
-/* ================= 文件 ================= */
+/* ===== 文件 ===== */
 function renderFiles(){
   const m=curMember(); const box=$('#filesList'); box.innerHTML='';
-  if(!m||!m.files||!m.files.length) return;
+  if(!m||!m.files||!m.files.length)return;
   m.files.forEach(f=>{
-    const a=document.createElement('div'); a.style.cssText='display:flex;gap:6px;align-items:center;margin:4px 0;font-size:13px;';
-    const isImg=f.type.startsWith('image/');
+    const a=document.createElement('div');a.style.cssText='display:flex;gap:6px;align-items:center;margin:4px 0;font-size:13px;';
+    const isImg=f.type&&f.type.startsWith('image/');
     a.innerHTML=`<span>${isImg?'🖼️':'📄'}</span><a href="${f.data}" target="_blank" style="color:var(--accent);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(f.name)}</a><button class="btn ghost" style="padding:2px 8px;color:var(--danger);">✕</button>`;
-    a.querySelector('button').onclick=()=>{ m.files=m.files.filter(x=>x.id!==f.id); save(); renderFiles(); };
+    a.querySelector('button').onclick=()=>{m.files=m.files.filter(x=>x.id!==f.id);save();renderFiles();};
     box.appendChild(a);
   });
 }
 
-/* ================= 统计 ================= */
+/* ===== 统计（用原版逻辑） ===== */
 function renderStats(){
   const m=curMember(); const g=$('#statGrid'); g.innerHTML='';
-  if(!m){g.innerHTML='';return;}
-  const recs=m.records||[];
-  const transfusion=recs.filter(r=>r.type==='输血');
-  const chemo=recs.filter(r=>r.type==='化疗');
-  const totalBags=transfusion.reduce((s,r)=>s+(r.bags||[]).length,0);
-  const totalMl=transfusion.reduce((s,r)=>s+(r.bags||[]).reduce((a,b)=>a+(+b.ml||0),0),0);
+  if(!m)return;
+  const recs=state.records.filter(r=>r.member===m.id);
+  const trans=recs.filter(r=>r.type==='输血记录');
+  const chemo=recs.filter(r=>r.type==='化疗记录');
+  const totalBags=trans.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.length:0),0);
+  const totalMl=trans.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.reduce((a,b)=>a+(+b||0),0):0),0);
   const base=[
     {val:chemo.length,lbl:'化疗总周期'},
     {val:Math.round(totalMl),lbl:'输血总 ml'},
     {val:totalBags,lbl:'输血总袋数'}
   ];
-  const customs=(state.customStats||[]).map(cs=>({val:calcCustom(m,cs),lbl:cs.name}));
-  [...base,...customs].forEach(s=>{
-    const d=document.createElement('div'); d.className='stat';
-    d.innerHTML=`<div class="num">${fmt(s.val)}</div><div class="lbl">${esc(s.lbl)}</div>`;
-    g.appendChild(d);
+  [...base].forEach(s=>{
+    const d=document.createElement('div');d.className='stat';
+    d.innerHTML=`<div class="num">${fmt(s.val)}</div><div class="lbl">${esc(s.lbl)}</div>`;g.appendChild(d);
   });
-  const add=document.createElement('div'); add.className='stat-add'; add.textContent='＋ 自定义';
-  add.onclick=openStatModal; g.appendChild(add);
-}
-function calcCustom(m,cs){
-  const recs=(m.records||[]).filter(r=>r.type===cs.type);
-  if(!recs.length) return 0;
-  if(cs.method==='count') return recs.length;
-  const vals=recs.map(r=>+(r[cs.field]??0)).filter(v=>!isNaN(v));
-  if(!vals.length) return 0;
-  switch(cs.method){
-    case 'sum':return vals.reduce((a,b)=>a+b,0);
-    case 'avg':return Math.round(vals.reduce((a,b)=>a+b,0)/vals.length*100)/100;
-    case 'max':return Math.max(...vals);
-    case 'min':return Math.min(...vals);
-    case 'last':return vals[vals.length-1];
-  }
-  return recs.length;
+  const add=document.createElement('div');add.className='stat-add';add.textContent='＋ 自定义';
+  add.onclick=toast('自定义统计可后续添加');g.appendChild(add);
 }
 
-/* ================= 表单 ================= */
-let selType='看诊预约';
-let tlFilter='全部';
+/* ===== 表单（按原版字段） ===== */
+let selType='输血记录';
 function renderSelType(){
-  const s=$('#selType'); s.innerHTML='';
-  RECORD_TYPES.forEach(t=>{const o=document.createElement('option');o.value=t;o.textContent=t;if(t===selType)o.selected=true;s.appendChild(o);});
+  const s=$('#selType');
+  s.value=selType;
   s.onchange=()=>{selType=s.value;renderForm();};
 }
-function fieldInput(f){
-  if(f.t==='bags') return `<div id="bagsBox"></div><button class="btn ghost" id="addBag" style="color:var(--accent);padding-left:0;">＋ 添加血袋</button>`;
-  if(f.t==='metrics') return `<div id="metricsBox"></div><button class="btn ghost" id="addMetric" style="color:var(--accent);padding-left:0;">＋ 添加指标</button>`;
-  if(f.t==='meds') return `<div id="medsBox"></div><button class="btn ghost" id="addMed" style="color:var(--accent);padding-left:0;">＋ 添加药品</button>`;
-  if(f.t==='fields') return `<div id="fieldsBox"></div><button class="btn ghost" id="addField" style="color:var(--accent);padding-left:0;">＋ 添加字段</button>`;
-  if(f.t==='textarea') return `<textarea id="f_${f.k}" rows="3"></textarea>`;
-  return `<input id="f_${f.k}" type="${f.t==='date'?'date':f.t==='time'?'time':f.t==='number'?'number':'text'}">`;
-}
 function renderForm(){
-  const box=$('#formFields'); const fields=TYPE_FIELDS[selType]||[];
-  box.innerHTML=fields.map(f=>`<div class="form-row"><label>${esc(f.label)}</label>${fieldInput(f)}</div>`).join('');
-  if(selType==='输血') setupBags();
-  if(['CBC血常规','检查报告'].includes(selType)) setupMetrics();
-  if(selType==='用药清单') setupMeds();
-  if(selType==='自定义') setupFields();
+  const box=$('#formFields'); let html='';
+  if(selType==='输血记录'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>血袋（每袋毫升）</label><div id="bagsBox"></div>
+      <button class="btn ghost" id="addBag" style="color:var(--accent);padding-left:0;">＋ 添加血袋</button></div>`;
+  } else if(selType==='化疗记录'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="row2"><div class="form-row"><label>开始日期</label><input id="f_start" type="date"></div>
+      <div class="form-row"><label>结束日期</label><input id="f_end" type="date"></div></div>
+      <div class="form-row"><label>药物 / 方案</label><input id="f_drug" placeholder="如 Vidaza (Azacitidine 100mg)"></div>
+      <div class="row2"><div class="form-row"><label>第几周期</label><input id="f_cycle" type="number"></div>
+      <div class="form-row"><label>周期天数</label><input id="f_cycleDays" type="number"></div></div>`;
+  } else if(selType==='看诊预约'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>医生</label><input id="f_doctor" placeholder="Dr. Surapol"></div>
+      <div class="form-row"><label>科室</label><input id="f_dept"></div>
+      <div class="form-row"><label>医院</label><input id="f_hospital"></div>`;
+  } else if(selType==='CBC血常规'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="row2"><div class="form-row"><label>HGB</label><input id="f_hgb" type="number" step="any"></div>
+      <div class="form-row"><label>PLT</label><input id="f_plt" type="number" step="any"></div></div>
+      <div class="row2"><div class="form-row"><label>HCT</label><input id="f_hct" type="number" step="any"></div>
+      <div class="form-row"><label>NEUT</label><input id="f_neut" type="number" step="any"></div></div>`;
+  } else if(selType==='体征测量'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="row2"><div class="form-row"><label>血压 mmHg</label><input id="f_bp"></div>
+      <div class="form-row"><label>体温 ℃</label><input id="f_temp" type="number" step="any"></div></div>
+      <div class="row2"><div class="form-row"><label>心率 次/分</label><input id="f_hr" type="number" step="any"></div>
+      <div class="form-row"><label>血氧 %</label><input id="f_spo2" type="number" step="any"></div></div>`;
+  } else if(selType==='住院记录'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="row2"><div class="form-row"><label>开始日期</label><input id="f_start" type="date"></div>
+      <div class="form-row"><label>结束日期</label><input id="f_end" type="date"></div></div>
+      <div class="form-row"><label>入院原因</label><input id="f_reason"></div>
+      <div class="form-row"><label>病房/床位</label><input id="f_ward"></div>
+      <div class="form-row"><label>医院</label><input id="f_hospital"></div>`;
+  }
+  box.innerHTML=html;
+  if(selType==='输血记录'){const b=$('#bagsBox');b.innerHTML='';
+    const add=()=>{const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;margin-bottom:6px;';
+      r.innerHTML=`<input type="number" step="0.01" placeholder="每袋毫升" class="bag-ml" style="flex:1;">
+      <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
+      r.querySelector('button').onclick=()=>r.remove();b.appendChild(r);};
+    add();$('#addBag').onclick=add;}
 }
-function setupBags(){const box=$('#bagsBox');box.innerHTML='';const add=()=>{
-  const r=document.createElement('div');r.className='bag-item';r.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
-  r.innerHTML=`<input type="number" step="0.01" placeholder="每袋毫升（日期取上方日期）" class="bag-ml" style="flex:1;">
-    <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
-  r.querySelector('button').onclick=()=>r.remove();box.appendChild(r);};
-  add();$('#addBag').onclick=add;}
-function setupMetrics(){const box=$('#metricsBox');box.innerHTML='';const add=()=>{
-  const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
-  r.innerHTML=`<input class="mt-name" placeholder="指标名" style="flex:1;"><input class="mt-val" placeholder="数值" type="number" step="any" style="flex:1;">
-    <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
-  r.querySelector('button').onclick=()=>r.remove();box.appendChild(r);};
-  add();$('#addMetric').onclick=add;}
-function setupMeds(){const box=$('#medsBox');box.innerHTML='';const add=()=>{
-  const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
-  r.innerHTML=`<input class="md-name" placeholder="药名" style="flex:1;"><input class="md-dose" placeholder="剂量/频次" style="flex:1;">
-    <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
-  r.querySelector('button').onclick=()=>r.remove();box.appendChild(r);};
-  add();$('#addMed').onclick=add;}
-function setupFields(){const box=$('#fieldsBox');box.innerHTML='';const add=()=>{
-  const r=document.createElement('div');r.style.cssText='display:flex;gap:6px;margin-bottom:6px;align-items:center;';
-  r.innerHTML=`<input class="fd-name" placeholder="字段名" style="flex:1;"><input class="fd-val" placeholder="值" style="flex:1;">
-    <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
-  r.querySelector('button').onclick=()=>r.remove();box.appendChild(r);};
-  add();$('#addField').onclick=add;}
 function collectForm(){
-  const rec={id:uid(),type:selType,created:Date.now()};
-  (TYPE_FIELDS[selType]||[]).forEach(f=>{
-    if(f.t==='bags'){
-      rec.bags=[...document.querySelectorAll('#bagsBox .bag-item')].map(r=>{const ml=+r.querySelector('.bag-ml').value||0;return {ml};}).filter(b=>b.ml>0);
-    } else if(f.t==='metrics'){
-      rec.metrics=[...document.querySelectorAll('#metricsBox > div')].map(r=>({name:r.querySelector('.mt-name').value,val:r.querySelector('.mt-val').value})).filter(b=>b.name);
-    } else if(f.t==='meds'){
-      rec.meds=[...document.querySelectorAll('#medsBox > div')].map(r=>({name:r.querySelector('.md-name').value,dose:r.querySelector('.md-dose').value})).filter(b=>b.name);
-    } else if(f.t==='fields'){
-      rec.fields=[...document.querySelectorAll('#fieldsBox > div')].map(r=>({name:r.querySelector('.fd-name').value,val:r.querySelector('.fd-val').value})).filter(b=>b.name);
-    } else {
-      const el=document.getElementById('f_'+f.k); rec[f.k]=el?el.value:'';
-    }
-  });
+  const m=curMember(); const rec={id:uid(),member:m.id,type:selType,date:$('#f_date')?$('#f_date').value:'',time:''};
+  if(selType==='输血记录'){
+    const bags=[...document.querySelectorAll('#bagsBox .bag-item .bag-ml,#bagsBox input.bag-ml')].map(e=>+e.value||0).filter(v=>v>0);
+    rec.trans={bags};
+  } else if(selType==='化疗记录'){
+    rec.startDate=$('#f_start')?$('#f_start').value:'';rec.endDate=$('#f_end')?$('#f_end').value:'';
+    rec.drug=$('#f_drug')?$('#f_drug').value:'';rec.cycle=$('#f_cycle')?$('#f_cycle').value:'';
+    rec.cycleDays=$('#f_cycleDays')?$('#f_cycleDays').value:'';
+  } else if(selType==='看诊预约'){
+    rec.visit={doctor:$('#f_doctor').value,dept:$('#f_dept').value,hospital:$('#f_hospital').value};
+  } else if(selType==='CBC血常规'){
+    rec.cbc={cHgb:$('#f_hgb').value,cPlt:$('#f_plt').value,cHct:$('#f_hct').value,cNeut:$('#f_neut').value,custom:[]};
+  } else if(selType==='体征测量'){
+    rec.vitals={bp:$('#f_bp').value,temp:$('#f_temp').value,hr:$('#f_hr').value,spo2:$('#f_spo2').value};
+  } else if(selType==='住院记录'){
+    rec.startDate=$('#f_start')?$('#f_start').value:'';rec.endDate=$('#f_end')?$('#f_end').value:'';
+    rec.title=$('#f_reason')?$('#f_reason').value:'';rec.ward=$('#f_ward')?$('#f_ward').value:'';rec.hospital=$('#f_hospital')?$('#f_hospital').value:'';
+  }
   return rec;
 }
 
-/* ================= 记录 & 输血分行展示 ================= */
-function renderTlFilter(){
-  const s=$('#tlFilter'); s.innerHTML='<option value="全部">全部</option>'+RECORD_TYPES.map(t=>`<option ${tlFilter===t?'selected':''}>${t}</option>`).join('');
-  s.onchange=()=>{tlFilter=s.value;renderRecords();};
-}
+/* ===== 记录 & 输血分行 ===== */
 function renderRecords(){
   const m=curMember(); const box=$('#recordList'); box.innerHTML='';
-  if(!m||!m.records||!m.records.length){box.innerHTML='<div class="empty">暂无记录，从左侧添加第一条吧</div>';return;}
-  const recs=[...m.records]
-    .filter(r=>tlFilter==='全部'||r.type===tlFilter)
-    .sort((a,b)=>(b.date||b.start||'').localeCompare(a.date||a.start||'')||b.created-a.created);
-  if(!recs.length){box.innerHTML='<div class="empty">该筛选下暂无记录</div>';return;}
-  recs.forEach(r=>box.appendChild(renderRecordCard(r,m)));
+  if(!m){box.innerHTML='<div class="empty">暂无记录</div>';return;}
+  const recs=state.records.filter(r=>r.member===m.id&&(tlFilter==='全部'||r.type===tlFilter))
+    .sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  if(!recs.length){box.innerHTML='<div class="empty">暂无记录，从左侧添加第一条吧</div>';return;}
+  recs.forEach(r=>box.appendChild(renderRecordCard(r)));
 }
-function renderRecordCard(r,m){
+function renderRecordCard(r){
   const d=document.createElement('div'); d.className='record';
   let body='';
-  if(r.type==='输血'){body=renderTransfusion(r);}
-  else if(r.type==='CBC血常规'){
-    const items=[['HGB',r.hgb],['HCT',r.hct],['PLT',r.plt],['NEUT',r.neut]].filter(x=>x[1]!==''&&x[1]!=null);
-    (r.metrics||[]).forEach(mt=>items.push([mt.name,mt.val]));
-    body=items.map(x=>`<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:var(--muted);min-width:64px;">${esc(x[0])}</span><span>${esc(x[1])}</span></div>`).join('')||'<div style="color:var(--muted);">未填指标</div>';
-  } else if(r.type==='用药清单'){
-    body=(r.meds||[]).map(md=>`<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:var(--muted);">💊</span><span>${esc(md.name)} ${esc(md.dose||'')}</span></div>`).join('')||'<div style="color:var(--muted);">未填药品</div>';
-  } else if(r.type==='自定义'){
-    body=(r.fields||[]).map(fl=>`<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:var(--muted);min-width:64px;">${esc(fl.name)}</span><span>${esc(fl.val)}</span></div>`).join('');
-    if(r.note) body+=`<div style="color:var(--muted);margin-top:4px;">${esc(r.note)}</div>`;
-  } else {
-    const skip=['id','type','created','bags','metrics','meds','fields'];
-    const ks=Object.keys(r).filter(k=>!skip.includes(k)&&r[k]!==''&&r[k]!=null);
-    body=ks.map(k=>{const label=(TYPE_FIELDS[r.type]||[]).find(f=>f.k===k);
-      return `<div style="display:flex;gap:6px;margin:2px 0;"><span style="color:var(--muted);min-width:64px;">${esc(label?label.label:k)}</span><span>${esc(r[k])}</span></div>`;}).join('');
-    if(r.note) body+=`<div style="color:var(--muted);margin-top:4px;">${esc(r.note)}</div>`;
-  }
-  d.innerHTML=`<div class="rhead">
-    <div><span class="rtag">${esc(r.type)}</span>
-      <span class="rdate">${esc(r.date||r.start||'')} ${r.time?esc(r.time):''}</span></div>
-    <button class="del-btn" data-del="${r.id}">删除</button></div>
-    <div>${body}</div>`;
-  d.querySelector('[data-del]').onclick=()=>{if(confirm('删除这条记录？')){m.records=m.records.filter(x=>x.id!==r.id);save();renderAll();}};
+  if(r.type==='输血记录'){body=renderTransfusion(r);}
+  else if(r.type==='化疗记录'){
+    body=fieldsToHtml([['药物',r.drug],['周期',r.cycle],['周期天数',r.cycleDays],['起',r.startDate],['止',r.endDate]]);
+  } else if(r.type==='看诊预约'){
+    const v=r.visit||{}; body=fieldsToHtml([['医生',v.doctor],['科室',v.dept],['医院',v.hospital]]);
+  } else if(r.type==='CBC血常规'){
+    const c=r.cbc||{}; body=fieldsToHtml([['HGB',c.cHgb],['PLT',c.cPlt],['HCT',c.cHct],['NEUT',c.cNeut]]);
+  } else if(r.type==='体征测量'){
+    const v=r.vitals||{}; body=fieldsToHtml([['血压',v.bp],['体温',v.temp],['心率',v.hr],['血氧',v.spo2]]);
+  } else if(r.type==='住院记录'){
+    body=fieldsToHtml([['原因',r.title],['病房',r.ward],['医院',r.hospital],['起',r.startDate],['止',r.endDate]]);
+  } else { body=''; }
+  d.innerHTML=`<div class="rhead"><div><span class="rtag">${esc(r.type)}</span>
+    <span class="rdate">${esc(r.date||'')}</span></div>
+    <button class="del-btn" data-del="${r.id}">删除</button></div><div>${body}</div>`;
+  d.querySelector('[data-del]').onclick=()=>{if(confirm('删除这条记录？')){state.records=state.records.filter(x=>x.id!==r.id);save();renderAll();}};
   return d;
+}
+function fieldsToHtml(pairs){
+  return pairs.filter(p=>p[1]).map(p=>`<div class="kv"><span class="k">${esc(p[0])}</span><span>${esc(p[1])}</span></div>`).join('')||'<div style="color:var(--muted);">无内容</div>';
 }
 /* 输血：每袋 / 合计 / 袋数 各占一行 */
 function renderTransfusion(r){
-  const bags=r.bags||[];
-  const lines=bags.map((b,i)=>`<div class="tf-line"><span class="tf-lbl">第${i+1}袋</span><span class="tf-val">${esc(b.ml)} ml</span></div>`).join('');
-  const total=bags.reduce((s,b)=>s+(+b.ml||0),0);
+  const bags=(r.trans&&r.trans.bags)||[];
+  const lines=bags.map((b,i)=>`<div class="tf-line"><span class="tf-lbl">第${i+1}袋</span><span class="tf-val">${esc(b)} ml</span></div>`).join('');
+  const total=bags.reduce((s,b)=>s+(+b||0),0);
   const sumLine=`<div class="tf-line sum"><span class="tf-lbl">合计</span><span class="tf-val">${esc(Math.round(total*100)/100)} ml</span></div>`;
   const countLine=`<div class="tf-line count"><span class="tf-lbl">袋数</span><span class="tf-val">${bags.length}</span></div>`;
-  return `<div class="transfusion-list">${lines}${sumLine}${countLine}</div>`;
+  return `<div>${lines}${sumLine}${countLine}</div>`;
 }
 
-/* ================= 趋势图 ================= */
+/* ===== 趋势图 ===== */
 function renderCharts(){
-  const m=curMember(); const box=$('#charts'); box.innerHTML='';
-  const legend=$('#chartLegend'); legend.innerHTML='';
-  if(!m){box.innerHTML='';return;}
-  const series=state.chartSeries[m.id]||[];
-  if(!series.length){box.innerHTML='<div class="chart-empty">还没有可绘图的记录。点右侧「⚙ 配置图表」选一个数据源，或先添加 CBC血常规 / 输血记录。</div>';return;}
+  const m=curMember(); const box=$('#charts'); box.innerHTML=''; const legend=$('#chartLegend'); legend.innerHTML='';
+  if(!m)return;
+  const series=(m.chartSeries||[]);
+  if(!series.length){box.innerHTML='<div class="chart-empty">还没有可绘图的记录。点「⚙ 配置图表」选一个数据源，或先添加 CBC血常规 / 输血记录。</div>';return;}
   const byType={};
   series.forEach(s=>{(byType[s.type]=byType[s.type]||[]).push(s);});
   Object.entries(byType).forEach(([type,ss])=>{
-    const recs=(m.records||[]).filter(r=>r.type===type).sort((a,b)=>(a.date||a.start||'').localeCompare(b.date||b.start||''));
-    if(!recs.length) return;
-    const svg=buildLineChart(recs,ss,type);
-    box.insertAdjacentHTML('beforeend',svg);
-    ss.forEach(s=>{
-      const lg=document.createElement('div'); lg.className='lg'; lg.dataset.series=s.name;
-      lg.innerHTML=`<span class="sw" style="background:${s.color}"></span>${esc(s.name)}`;
-      legend.appendChild(lg);
-    });
+    const recs=state.records.filter(r=>r.member===m.id&&r.type===type).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    if(!recs.length)return;
+    box.insertAdjacentHTML('beforeend',buildLineChart(recs,ss,type));
+    ss.forEach(s=>{const lg=document.createElement('div');lg.className='lg';
+      lg.innerHTML=`<span class="sw" style="background:${s.color}"></span>${esc(s.label)}`;legend.appendChild(lg);});
   });
-  if(!box.children.length) box.innerHTML='<div class="chart-empty">所选系列暂无对应数据。</div>';
+  if(!box.children.length)box.innerHTML='<div class="chart-empty">所选系列暂无对应数据。</div>';
 }
+function cbcVal(r,field){const c=r.cbc||{};const k=field.split('.').pop();return +(c[k]??0)||0;}
 function buildLineChart(recs,ss,type){
   const W=720,H=260,padL=40,padR=20,padT=20,padB=30;
   const allPts={}; let maxV=0;
-  ss.forEach(s=>{allPts[s.name]=recs.map(r=>{
+  ss.forEach(s=>{allPts[s.label]=recs.map(r=>{
     let v=0;
-    if(type==='输血') v=(r.bags||[]).reduce((a,b)=>a+(+b.ml||0),0);
-    else v=+(r[s.field]??0)||0;
-    return {x:r.date||r.start,v};
-  });
-  allPts[s.name].forEach(p=>{if(p.v>maxV)maxV=p.v;});});
-  if(maxV===0) maxV=1;
+    if(type==='输血记录') v=(r.trans&&r.trans.bags)?r.trans.bags.reduce((a,b)=>a+(+b||0),0):0;
+    else if(type==='CBC血常规') v=cbcVal(r,s.field);
+    else v=0;
+    return {x:r.date,v};
+  });allPts[s.label].forEach(p=>{if(p.v>maxV)maxV=p.v;});});
+  if(maxV===0)maxV=1;
   const n=recs.length;
-  const x=i=> n<=1? padL+(W-padL-padR)/2 : padL + i*(W-padL-padR)/(n-1);
-  const y=v=> H-padB - (v/maxV)*(H-padT-padB);
+  const x=i=>n<=1?padL+(W-padL-padR)/2:padL+i*(W-padL-padR)/(n-1);
+  const y=v=>H-padB-(v/maxV)*(H-padT-padB);
   let paths='';
-  ss.forEach(s=>{
-    const pts=allPts[s.name]; if(!pts.length) return;
+  ss.forEach(s=>{const pts=allPts[s.label];if(!pts.length)return;
     const dpath=pts.map((p,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${y(p.v).toFixed(1)}`).join(' ');
     paths+=`<path d="${dpath}" fill="none" stroke="${s.color}" stroke-width="2.5"/>`;
-    pts.forEach((p,i)=>{paths+=`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" fill="${s.color}"/>`;});
-  });
+    pts.forEach((p,i)=>{paths+=`<circle cx="${x(i).toFixed(1)}" cy="${y(p.v).toFixed(1)}" r="4" fill="${s.color}"/>`;});});
   let axis=`<line x1="${padL}" y1="${H-padB}" x2="${W-padR}" y2="${H-padB}" stroke="#e5e7eb"/>
     <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#e5e7eb"/>`;
-  recs.forEach((r,i)=>{const lbl=(r.date||r.start||'').slice(5);axis+=`<text x="${x(i)}" y="${H-padB+18}" font-size="11" fill="#9ca3af" text-anchor="middle">${esc(lbl)}</text>`;});
+  recs.forEach((r,i)=>{const lbl=(r.date||'').slice(5);axis+=`<text x="${x(i)}" y="${H-padB+18}" font-size="11" fill="#9ca3af" text-anchor="middle">${esc(lbl)}</text>`;});
   for(let g=1;g<4;g++){const yy=padT+g*(H-padT-padB)/4;axis+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#f3f4f6"/>`;}
   return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px;">${axis}${paths}</svg>`;
 }
 
-/* ================= 弹窗 ================= */
+/* ===== 弹窗 ===== */
 function openModal(id){$('#'+id).classList.add('open');}
 function closeModal(id){$('#'+id).classList.remove('open');}
 document.querySelectorAll('[data-close]').forEach(b=>b.onclick=()=>closeModal(b.dataset.close));
@@ -633,11 +528,9 @@ let editingMember=null;
 function openMemberModal(m){
   editingMember=m||null;
   $('#memberModalTitle').textContent=m?'编辑成员':'添加家庭成员';
-  $('#mName').value=m?m.name:'';
-  $('#mBirth').value=m?(m.birth||''):'';
-  $('#mBlood').value=m?(m.blood||''):'';
-  $('#mWeight').value=m?(m.weight||''):'';
-  $('#mHeight').value=m?(m.height||''):'';
+  $('#mName').value=m?m.name:''; $('#mRel').value=m?(m.rel||''):'';
+  $('#mDob').value=m?(m.dob||''):''; $('#mBlood').value=m?(m.blood||''):'';
+  $('#mWeight').value=m?(m.weight||''):''; $('#mHeight').value=m?(m.height||''):'';
   $('#mEmoji').value=m?(m.emoji||''):'';
   $('#hospitalList').innerHTML='';
   (m&&m.hospitals&&m.hospitals.length?m.hospitals:[{}]).forEach(h=>addHospitalRow(h));
@@ -655,147 +548,100 @@ $('#btnSaveMember').onclick=()=>{
   const name=$('#mName').value.trim();if(!name){toast('请填姓名');return;}
   const hospitals=[...document.querySelectorAll('#hospitalList .hosp-row')].map(r=>({name:r.querySelector('.h-name').value,phone:r.querySelector('.h-phone').value})).filter(h=>h.name);
   const w=+$('#mWeight').value,h=+$('#mHeight').value;
-  if(editingMember){
-    Object.assign(editingMember,{name,emoji:$('#mEmoji').value.trim(),birth:$('#mBirth').value,blood:$('#mBlood').value,weight:w||'',height:h||'',
-      bmi:(w&&h)?Math.round(w/((h/100)**2)*10)/10:'',hospitals});
-  } else {
-    const nm={id:uid(),name,emoji:$('#mEmoji').value.trim(),birth:$('#mBirth').value,blood:$('#mBlood').value,weight:w||'',height:h||'',
-      bmi:(w&&h)?Math.round(w/((h/100)**2)*10)/10:'',hospitals,records:[],files:[]};
-    state.members.push(nm); if(!state.current) state.current=nm.id;
-  }
-  save(); closeModal('memberModal'); renderAll();
+  if(editingMember){Object.assign(editingMember,{name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals});}
+  else{const nm={id:'m'+Date.now(),name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals,files:[],chartSeries:[]};state.members.push(nm);if(!state.current)state.current=nm.id;}
+  save();closeModal('memberModal');renderAll();
 };
 
 /* 主题 */
-const THEMES=[['green','🟢 绿'],['blue','🔵 蓝'],['purple','🟣 紫'],['rose','🔴 玫红'],['amber','🟠 橙']];
 function setupTheme(){
   $('#btnTheme').onclick=()=>{const g=$('#themeGrid');g.innerHTML='';
     THEMES.forEach(t=>{const b=document.createElement('button');b.className='btn'+(t[0]===state.theme?' primary':'');
       b.textContent=t[1];b.style.flex='1';b.onclick=()=>{state.theme=t[0];applyTheme();save();setupTheme();};g.appendChild(b);});
     openModal('themeModal');};}
-function applyTheme(){document.documentElement.setAttribute('data-theme',state.theme);}
-
-/* 自定义统计 */
-function openStatModal(){
-  const s=$('#csType'); s.innerHTML='';
-  RECORD_TYPES.forEach(t=>s.appendChild(new Option(t)));
-  s.value='化疗'; updateCsFields();
-  s.onchange=updateCsFields;
-  $('#csMethod').onchange=updateCsFields;
-  $('#csName').value=''; $('#csField').value='';
-  openModal('statModal');
+function applyTheme(){
+  const t=(state&&state.theme)||'forest';
+  document.documentElement.setAttribute('data-theme',t);
 }
-function updateCsFields(){
-  const t=$('#csType').value,m=$('#csMethod').value;
-  const fields=NUMERIC_FIELDS[t]||[];
-  const f=$('#csField'); f.innerHTML='';
-  if(m==='count'){f.innerHTML='<option value="">(无需选择)</option>'; $('#csFieldRow').style.display='none';}
-  else {fields.forEach(x=>f.appendChild(new Option(x))); $('#csFieldRow').style.display='block';}
-}
-$('#btnSaveStat').onclick=()=>{
-  const name=$('#csName').value.trim(),type=$('#csType').value,method=$('#csMethod').value;
-  const field=method==='count'?'':($('#csField').value||'');
-  if(!name){toast('请填名称');return;}
-  if(method!=='count'&&!field){toast('该统计方式需选数值字段');return;}
-  state.customStats.push({id:uid(),name,type,method,field});save();closeModal('statModal');renderStats();
-};
 
 /* 配置图表 */
 $('#btnCfgChart').onclick=()=>{renderSeriesEditor();openModal('chartModal');};
 $('#btnAddSeries').onclick=()=>addSeriesRow();
 $('#btnSaveSeries').onclick=()=>{
-  const m=curMember(); if(!m) return;
-  const list=[...document.querySelectorAll('#seriesList .cfg-series')].map(r=>({
-    name:r.querySelector('.s-name').value,type:r.querySelector('.s-type').value,
-    color:r.querySelector('.s-color').value,field:r.querySelector('.s-field').value})).filter(s=>s.name&&s.type);
-  state.chartSeries[m.id]=list;save();closeModal('chartModal');renderCharts();
+  const m=curMember();if(!m)return;
+  const list=[...document.querySelectorAll('#seriesList > div')].map(r=>({
+    label:r.querySelector('.s-label').value,type:r.querySelector('.s-type').value,
+    color:r.querySelector('.s-color').value,field:r.querySelector('.s-field').value})).filter(s=>s.label&&s.type);
+  m.chartSeries=list;save();closeModal('chartModal');renderCharts();
 };
-function renderSeriesEditor(){
-  const m=curMember(); const box=$('#seriesList'); box.innerHTML='';
-  const cur=(m&&state.chartSeries[m.id])||[];
-  if(!cur.length) addSeriesRow(); else cur.forEach(s=>addSeriesRow(s));
-}
+function renderSeriesEditor(){const m=curMember();const box=$('#seriesList');box.innerHTML='';
+  const cur=(m&&m.chartSeries)||[];if(!cur.length)addSeriesRow();else cur.forEach(s=>addSeriesRow(s));}
 function addSeriesRow(s){
-  const row=document.createElement('div'); row.className='cfg-series';
-  const typeOpts=RECORD_TYPES.map(t=>`<option ${s&&s.type===t?'selected':''}>${t}</option>`).join('');
-  const fields=s&&s.type?(NUMERIC_FIELDS[s.type]||[]):[];
-  const fieldOpts=(fields.length?fields:['(无)']).map(f=>`<option ${s&&s.field===f?'selected':''}>${f}</option>`).join('');
-  row.innerHTML=`<input class="s-name" placeholder="系列显示名" value="${s?s.name:''}" style="flex:1;">
-    <select class="s-type" style="flex:1;">${typeOpts}</select>
-    <input class="s-color" type="color" value="${s?s.color:'#ef4444'}" style="width:36px;height:36px;padding:2px;">
-    <select class="s-field" style="flex:1;">${fieldOpts}</select>
+  const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;align-items:center;margin-bottom:6px;flex-wrap:wrap;';
+  const typeOpts=TYPES.map(t=>`<option ${s&&s.type===t?'selected':''}>${t}</option>`).join('');
+  const fieldOpts=(s&&s.type==='CBC血常规')?['cbc.cHgb','cbc.cPlt','cbc.cHct','cbc.cNeut'].map(f=>`<option ${s.field===f?'selected':''}>${f}</option>`).join(''):'<option>(无)</option>';
+  row.innerHTML=`<input class="s-label" placeholder="系列显示名" value="${s?s.label:''}" style="flex:1;min-width:90px;">
+    <select class="s-type" style="flex:1;min-width:90px;">${typeOpts}</select>
+    <input class="s-color" type="color" value="${s?s.color:'#ed3563'}" style="width:36px;height:36px;padding:2px;">
+    <select class="s-field" style="flex:1;min-width:90px;">${fieldOpts}</select>
     <button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
-  row.querySelector('.s-type').onchange=e=>{const f=NUMERIC_FIELDS[e.target.value]||[];const fs=row.querySelector('.s-field');
-    fs.innerHTML=f.map(x=>`<option>${x}</option>`).join('')||'<option>(无)</option>';};
+  row.querySelector('.s-type').onchange=e=>{const fs=row.querySelector('.s-field');
+    fs.innerHTML=(e.target.value==='CBC血常规')?['cbc.cHgb','cbc.cPlt','cbc.cHct','cbc.cNeut'].map(f=>`<option>${f}</option>`).join(''):'<option>(无)</option>';};
   row.querySelector('button').onclick=()=>row.remove();
   $('#seriesList').appendChild(row);
 }
 
 /* 导入导出 */
 function setupIO(){
-  $('#btnExportJson').onclick=()=>{download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),
-    '医疗记录备份_'+new Date().toISOString().slice(0,10)+'.json');toast('已导出 JSON');};
+  $('#btnExportJson').onclick=()=>{download(new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),'医疗记录备份_'+new Date().toISOString().slice(0,10)+'.json');toast('已导出 JSON');};
   $('#btnImport').onclick=()=>$('#fileInput').click();
   $('#fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;
     const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);
-      if(d&&d.members){state=d;save();renderAll();toast('导入成功');}else toast('文件格式不正确');}catch(e){toast('解析失败');}};
-    rd.readAsText(f);};
+      if(d&&d.members&&d.records){state=d;save();renderAll();toast('导入成功');}else toast('文件格式不正确');}catch(e){toast('解析失败');}};rd.readAsText(f);};
   $('#btnExportExcel').onclick=()=>{
-    const box=$('#expTypes'); box.innerHTML=RECORD_TYPES.map(t=>`<label class="pill" style="cursor:pointer;"><input type="checkbox" class="exp-type" value="${t}" checked> ${t}</label>`).join('');
+    const box=$('#expTypes');box.innerHTML=TYPES.map(t=>`<label class="pill" style="cursor:pointer;"><input type="checkbox" class="exp-type" value="${t}" checked> ${t}</label>`).join('');
     openModal('exportModal');};
   $('#btnDoExport').onclick=exportExcel;
   $('#btnUpload').onclick=()=>$('#fileUpload').click();
   $('#fileUpload').onchange=e=>{const m=curMember();if(!m){toast('请先选择成员');return;}
-    [...e.target.files].forEach(f=>{const rd=new FileReader();rd.onload=()=>{m.files.push({id:uid(),name:f.name,type:f.type,data:rd.result});
-      save();renderFiles();};rd.readAsDataURL(f);});e.target.value='';};
+    [...e.target.files].forEach(f=>{const rd=new FileReader();rd.onload=()=>{(m.files=m.files||[]).push({id:uid(),name:f.name,type:f.type,data:rd.result});save();renderFiles();};rd.readAsDataURL(f);});e.target.value='';};
 }
 function download(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click();URL.revokeObjectURL(a.href);}
 function exportExcel(){
-  const m=curMember();if(!m){closeModal('exportModal');return;}
   const scope=$('#expScope').value;
   const types=[...document.querySelectorAll('.exp-type:checked')].map(c=>c.value);
-  const members=scope==='all'?state.members:[m];
+  const members=scope==='all'?state.members:state.members.filter(m=>m.id===state.current);
   const rows=[['成员','类型','日期','字段1','值1','字段2','值2','字段3','值3']];
-  members.forEach(mem=>{(mem.records||[]).filter(r=>types.includes(r.type)).forEach(r=>{
-    if(r.type==='输血'){
-      const bags=(r.bags||[]).map((b,i)=>`第${i+1}袋 ${b.ml}ml`).join('; ');
-      const total=(r.bags||[]).reduce((a,b)=>a+(+b.ml||0),0);
-      rows.push([mem.name,'输血',r.date||'','袋明细',bags,'合计',total,'袋数',(r.bags||[]).length]);
-    } else {
-      const skip=['id','type','created','bags','metrics','meds','fields'];
-      const pairs=Object.keys(r).filter(k=>!skip.includes(k)&&r[k]!==''&&r[k]!=null).flatMap(k=>[k,r[k]]);
-      const padded=[];for(let i=0;i<6;i+=2){padded.push(pairs[i]||'',pairs[i+1]||'');}
-      rows.push([mem.name,r.type,r.date||r.start||'',...padded]);
-    }
-  });});
+  const flat=(r)=>{const o={};if(r.trans)o['袋数']=(r.trans.bags||[]).length,o['合计ml']=(r.trans.bags||[]).reduce((a,b)=>a+(+b||0),0);
+    if(r.cbc)Object.assign(o,{HGB:r.cbc.cHgb,PLT:r.cbc.cPlt,HCT:r.cbc.cHct,NEUT:r.cbc.cNeut});
+    if(r.visit)Object.assign(o,{医生:r.visit.doctor,科室:r.visit.dept,医院:r.visit.hospital});
+    if(r.vitals)Object.assign(o,{血压:r.vitals.bp,体温:r.vitals.temp,心率:r.vitals.hr,血氧:r.vitals.spo2});
+    if(r.drug)o['药物']=r.drug;if(r.cycle)o['周期']=r.cycle;return o;};
+  members.forEach(m=>{state.records.filter(r=>r.member===m.id&&types.includes(r.type)).forEach(r=>{
+    const o=flat(r);const keys=Object.keys(o);const padded=[];for(let i=0;i<6;i+=2)padded.push(keys[i]||'',keys[i+1]||'');
+    rows.push([m.name,r.type,r.date||'',...padded]);});});
   const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
   download(new Blob([csv],{type:'text/csv;charset=utf-8'}),'医疗记录_'+new Date().toISOString().slice(0,10)+'.csv');
   closeModal('exportModal');toast('已导出 CSV');
 }
 
 /* 保存记录 */
-$('#btnSaveRecord').onclick=()=>{
-  const m=curMember(); if(!m){toast('请先选择成员');return;}
+$('#btnSaveRecord').onclick=()=>{const m=curMember();if(!m){toast('请先选择成员');return;}
   const rec=collectForm();
-  if(selType==='输血' && (!rec.bags||!rec.bags.length)){toast('请至少添加一袋');return;}
-  m.records=m.records||[]; m.records.push(rec); save(); renderAll(); toast('已保存');
-};
+  if(selType==='输血记录'&&(!rec.trans||!rec.trans.bags.length)){toast('请至少添加一袋');return;}
+  state.records.push(rec);save();renderAll();toast('已保存');};
 
-/* ================= 初始化 ================= */
+/* 时间线筛选 */
+let tlFilter='全部';
+function renderTlFilter(){$('#tlFilter').onchange=e=>{tlFilter=e.target.value;renderRecords();};}
+
+/* ===== 初始化 ===== */
 function renderAll(){
   $('#curMemberName').textContent=curMember()?curMember().name:'—';
-  renderMemberTop(); renderFiles(); renderStats(); renderCharts(); renderRecords();
+  renderMemberTop();renderFiles();renderStats();renderCharts();renderRecords();
 }
 function init(){
-  applyTheme();
-  setupTheme(); setupIO();
-  renderSelType(); renderForm(); renderTlFilter();
-  // 切换成员
-  if(!state.members.length){
-    const demo={id:uid(),name:'爷爷',emoji:'👴',birth:'',blood:'',weight:'',height:'',bmi:'',hospitals:[],records:[],files:[]};
-    state.members.push(demo); state.current=demo.id; save();
-  }
-  renderAll();
+  applyTheme();setupTheme();setupIO();renderSelType();renderForm();renderTlFilter();renderAll();
 }
 init();
 </script>
