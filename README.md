@@ -16,3 +16,4 @@
 
 ## 部署（GitHub Pages）
 push 到 GitHub 后，在仓库 Settings → Pages 选择 main 分支根目录即可获得永久链接。
+<!-- deployed Thu Aug  6 04:43:02 PM UTC 2026 -->
