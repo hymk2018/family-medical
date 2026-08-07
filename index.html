@@ -167,8 +167,12 @@
           <option>化疗记录</option>
           <option>看诊预约</option>
           <option>CBC血常规</option>
+          <option>血报告</option>
           <option>体征测量</option>
+          <option>用药记录</option>
+          <option>医疗费用</option>
           <option>住院记录</option>
+          <option>其他</option>
         </select>
       </div>
       <div id="formFields"></div>
@@ -194,8 +198,12 @@
         <option>化疗记录</option>
         <option>看诊预约</option>
         <option>CBC血常规</option>
+        <option>血报告</option>
         <option>体征测量</option>
+        <option>用药记录</option>
+        <option>医疗费用</option>
         <option>住院记录</option>
+        <option>其他</option>
       </select>
     </div>
     <div id="recordList"></div>
@@ -275,7 +283,7 @@
 <script>
 /* ===== 数据层：兼容用户原版 schema ===== */
 const STORE_KEY='family_medical_v3';
-const TYPES=['输血记录','化疗记录','看诊预约','CBC血常规','体征测量','住院记录'];
+const TYPES=['输血记录','化疗记录','看诊预约','CBC血常规','血报告','体征测量','用药记录','医疗费用','住院记录','其他'];
 const THEMES=[['forest','🌲 森林绿'],['blue','🔵 蓝'],['purple','🟣 紫'],['rose','🔴 玫红'],['amber','🟠 橙']];
 
 let state=load();
@@ -377,10 +385,11 @@ function renderForm(){
       <div class="row2"><div class="form-row"><label>第几周期</label><input id="f_cycle" type="number"></div>
       <div class="form-row"><label>周期天数</label><input id="f_cycleDays" type="number"></div></div>`;
   } else if(selType==='看诊预约'){
-    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
-      <div class="form-row"><label>医生</label><input id="f_doctor" placeholder="Dr. Surapol"></div>
-      <div class="form-row"><label>科室</label><input id="f_dept"></div>
-      <div class="form-row"><label>医院</label><input id="f_hospital"></div>`;
+    html=`<div class="row2"><div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>预约时间（可选）</label><input id="f_time" type="time"></div></div>
+      <div class="form-row"><label>医生名</label><input id="f_doctor" placeholder="如 Dr. Surapol"></div>
+      <div class="form-row"><label>科室</label><input id="f_dept" placeholder="如 血液科"></div>
+      <div class="form-row"><label>医院</label><input id="f_hospital" placeholder="如 协和医院"></div>`;
   } else if(selType==='CBC血常规'){
     html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
       <div class="row2"><div class="form-row"><label>HGB</label><input id="f_hgb" type="number" step="any"></div>
@@ -393,6 +402,29 @@ function renderForm(){
       <div class="form-row"><label>体温 ℃</label><input id="f_temp" type="number" step="any"></div></div>
       <div class="row2"><div class="form-row"><label>心率 次/分</label><input id="f_hr" type="number" step="any"></div>
       <div class="form-row"><label>血氧 %</label><input id="f_spo2" type="number" step="any"></div></div>`;
+  } else if(selType==='血报告'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>报告名称（可选）</label><input id="f_title"></div>
+      <div class="form-row"><label>报告来源 / 医院实验室</label><input id="f_src"></div>
+      <div class="form-row"><label>关键结论（可选）</label><input id="f_note"></div>`;
+  } else if(selType==='用药记录'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>药名</label><input id="f_drug" placeholder="如 Vidaza"></div>
+      <div class="row2"><div class="form-row"><label>剂量</label><input id="f_dose" placeholder="如 100mg"></div>
+      <div class="form-row"><label>频次</label><input id="f_freq" placeholder="如 每日一次"></div></div>
+      <div class="form-row"><label>备注（可选）</label><input id="f_note"></div>`;
+  } else if(selType==='医疗费用'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="row2"><div class="form-row"><label>金额</label><input id="f_amount" type="number" step="any" placeholder="0.00"></div>
+      <div class="form-row"><label>币种</label>
+        <select id="f_currency"><option>CNY</option><option>USD</option><option>THB</option><option>EUR</option><option>JPY</option><option>GBP</option><option>其他</option></select></div></div>
+      <div class="form-row"><label>项目 / 内容</label><input id="f_item" placeholder="如 门诊 / 检查 / 药品"></div>
+      <div class="form-row"><label>医院 / 诊所</label><input id="f_hospital"></div>
+      <div class="form-row"><label>备注（可选）</label><input id="f_note"></div>`;
+  } else if(selType==='其他'){
+    html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
+      <div class="form-row"><label>标题</label><input id="f_title" placeholder="这条记录的标题"></div>
+      <div class="form-row"><label>详情</label><textarea id="f_note" rows="4" placeholder="自由记录..."></textarea></div>`;
   } else if(selType==='住院记录'){
     html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
       <div class="row2"><div class="form-row"><label>开始日期</label><input id="f_start" type="date"></div>
@@ -419,9 +451,19 @@ function collectForm(){
     rec.drug=$('#f_drug')?$('#f_drug').value:'';rec.cycle=$('#f_cycle')?$('#f_cycle').value:'';
     rec.cycleDays=$('#f_cycleDays')?$('#f_cycleDays').value:'';
   } else if(selType==='看诊预约'){
+    rec.time=$('#f_time')?$('#f_time').value:'';
     rec.visit={doctor:$('#f_doctor').value,dept:$('#f_dept').value,hospital:$('#f_hospital').value};
   } else if(selType==='CBC血常规'){
     rec.cbc={cHgb:$('#f_hgb').value,cPlt:$('#f_plt').value,cHct:$('#f_hct').value,cNeut:$('#f_neut').value,custom:[]};
+  } else if(selType==='血报告'){
+    rec.title=$('#f_title').value;rec.src=$('#f_src').value;rec.note=$('#f_note').value;
+  } else if(selType==='用药记录'){
+    rec.drug=$('#f_drug').value;rec.dose=$('#f_dose').value;rec.freq=$('#f_freq').value;rec.note=$('#f_note').value;
+  } else if(selType==='医疗费用'){
+    rec.amount=$('#f_amount').value;rec.currency=$('#f_currency').value;
+    rec.item=$('#f_item').value;rec.hospital=$('#f_hospital').value;rec.note=$('#f_note').value;
+  } else if(selType==='其他'){
+    rec.title=$('#f_title').value;rec.note=$('#f_note').value;
   } else if(selType==='体征测量'){
     rec.vitals={bp:$('#f_bp').value,temp:$('#f_temp').value,hr:$('#f_hr').value,spo2:$('#f_spo2').value};
   } else if(selType==='住院记录'){
@@ -448,8 +490,17 @@ function renderRecordCard(r){
     body=fieldsToHtml([['药物',r.drug],['周期',r.cycle],['周期天数',r.cycleDays],['起',r.startDate],['止',r.endDate]]);
   } else if(r.type==='看诊预约'){
     const v=r.visit||{}; body=fieldsToHtml([['医生',v.doctor],['科室',v.dept],['医院',v.hospital]]);
+    if(r.time)body+=`<div class="kv"><span class="k">时间</span><span>${esc(r.time)}</span></div>`;
   } else if(r.type==='CBC血常规'){
     const c=r.cbc||{}; body=fieldsToHtml([['HGB',c.cHgb],['PLT',c.cPlt],['HCT',c.cHct],['NEUT',c.cNeut]]);
+  } else if(r.type==='血报告'){
+    body=fieldsToHtml([['报告',r.title],['来源',r.src],['结论',r.note]]);
+  } else if(r.type==='用药记录'){
+    body=fieldsToHtml([['药名',r.drug],['剂量',r.dose],['频次',r.freq],['备注',r.note]]);
+  } else if(r.type==='医疗费用'){
+    body=fieldsToHtml([['金额',r.amount?(r.amount+' '+(r.currency||'')).trim():''],['项目',r.item],['医院',r.hospital],['备注',r.note]]);
+  } else if(r.type==='其他'){
+    body=`<div style="white-space:pre-wrap;">${esc(r.note||'')}</div>`;
   } else if(r.type==='体征测量'){
     const v=r.vitals||{}; body=fieldsToHtml([['血压',v.bp],['体温',v.temp],['心率',v.hr],['血氧',v.spo2]]);
   } else if(r.type==='住院记录'){
@@ -611,14 +662,18 @@ function exportExcel(){
   const scope=$('#expScope').value;
   const types=[...document.querySelectorAll('.exp-type:checked')].map(c=>c.value);
   const members=scope==='all'?state.members:state.members.filter(m=>m.id===state.current);
-  const rows=[['成员','类型','日期','字段1','值1','字段2','值2','字段3','值3']];
+  const rows=[['成员','类型','日期','字段1','值1','字段2','值2','字段3','值3','字段4','值4','字段5','值5']];
   const flat=(r)=>{const o={};if(r.trans)o['袋数']=(r.trans.bags||[]).length,o['合计ml']=(r.trans.bags||[]).reduce((a,b)=>a+(+b||0),0);
     if(r.cbc)Object.assign(o,{HGB:r.cbc.cHgb,PLT:r.cbc.cPlt,HCT:r.cbc.cHct,NEUT:r.cbc.cNeut});
     if(r.visit)Object.assign(o,{医生:r.visit.doctor,科室:r.visit.dept,医院:r.visit.hospital});
     if(r.vitals)Object.assign(o,{血压:r.vitals.bp,体温:r.vitals.temp,心率:r.vitals.hr,血氧:r.vitals.spo2});
-    if(r.drug)o['药物']=r.drug;if(r.cycle)o['周期']=r.cycle;return o;};
+    if(r.drug)o['药物']=r.drug;if(r.cycle)o['周期']=r.cycle;
+    if(r.title)o['标题']=r.title;if(r.src)o['来源']=r.src;if(r.dose)o['剂量']=r.dose;if(r.freq)o['频次']=r.freq;
+    if(r.amount)o['金额']=r.amount+(r.currency?(' '+r.currency):'');if(r.item)o['项目']=r.item;
+    if(r.note&&!o['备注'])o['备注']=r.note;
+    return o;};
   members.forEach(m=>{state.records.filter(r=>r.member===m.id&&types.includes(r.type)).forEach(r=>{
-    const o=flat(r);const keys=Object.keys(o);const padded=[];for(let i=0;i<6;i+=2)padded.push(keys[i]||'',keys[i+1]||'');
+    const o=flat(r);const keys=Object.keys(o);const padded=[];for(let i=0;i<10;i+=2)padded.push(keys[i]||'',keys[i+1]||'');
     rows.push([m.name,r.type,r.date||'',...padded]);});});
   const csv='﻿'+rows.map(r=>r.map(c=>'"'+String(c==null?'':c).replace(/"/g,'""')+'"').join(',')).join('\n');
   download(new Blob([csv],{type:'text/csv;charset=utf-8'}),'医疗记录_'+new Date().toISOString().slice(0,10)+'.csv');
