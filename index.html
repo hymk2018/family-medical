@@ -508,9 +508,46 @@ function renderRecordCard(r){
   } else { body=''; }
   d.innerHTML=`<div class="rhead"><div><span class="rtag">${esc(r.type)}</span>
     <span class="rdate">${esc(r.date||'')}</span></div>
+    <button class="del-btn" data-edit="${r.id}" style="margin-right:6px;">编辑</button>
     <button class="del-btn" data-del="${r.id}">删除</button></div><div>${body}</div>`;
   d.querySelector('[data-del]').onclick=()=>{if(confirm('删除这条记录？')){state.records=state.records.filter(x=>x.id!==r.id);save();renderAll();}};
+  d.querySelector('[data-edit]').onclick=()=>enterEditMode(r);
   return d;
+}
+
+/* ===== 编辑模式 ===== */
+let editingRec=null;
+function enterEditMode(r){
+  editingRec=r;
+  selType=r.type; renderSelType(); renderForm();
+  // 填字段
+  setTimeout(()=>{
+    if(r.date){const el=document.getElementById('f_date');if(el)el.value=r.date;}
+    if(r.time){const el=document.getElementById('f_time');if(el)el.value=r.time;}
+    if(r.type==='输血记录'&&r.trans){
+      const box=$('#bagsBox'); if(box){
+        box.innerHTML='';
+        (r.trans.bags||[]).forEach(ml=>{
+          const row=document.createElement('div');row.style.cssText='display:flex;gap:6px;margin-bottom:6px;';
+          row.innerHTML=`<input type="number" step="0.01" value="${ml}" class="bag-ml" style="flex:1;"><button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;
+          row.querySelector('button').onclick=()=>row.remove();box.appendChild(row);
+        });
+        if(!box.children.length){const r2=document.createElement('div');r2.style.cssText='display:flex;gap:6px;margin-bottom:6px;';r2.innerHTML=`<input type="number" step="0.01" placeholder="每袋毫升" class="bag-ml" style="flex:1;"><button class="btn ghost" style="color:var(--danger);padding:4px 8px;">✕</button>`;r2.querySelector('button').onclick=()=>r2.remove();box.appendChild(r2);}
+      }
+    }
+    const fields=['start','end','drug','cycle','cycleDays','doctor','dept','hospital','hgb','plt','hct','neut','bp','temp','hr','spo2','reason','ward','title','src','dose','freq','amount','item','note'];
+    fields.forEach(k=>{
+      const el=document.getElementById('f_'+k);
+      let v;
+      if(k==='doctor'||k==='dept'||k==='hospital') v=(r.visit&&r.visit[k])||'';
+      else if(k==='hgb'||k==='plt'||k==='hct'||k==='neut') v=(r.cbc&&r.cbc['c'+k.charAt(0).toUpperCase()+k.slice(1)])||'';
+      else v=r[k];
+      if(el&&v!=null) el.value=v;
+    });
+    const sel=$('#f_currency'); if(sel&&r.currency) sel.value=r.currency;
+  },50);
+  $('#btnSaveRecord').textContent='保存修改';
+  toast('编辑模式：修改后点「保存修改」');
 }
 function fieldsToHtml(pairs){
   return pairs.filter(p=>p[1]).map(p=>`<div class="kv"><span class="k">${esc(p[0])}</span><span>${esc(p[1])}</span></div>`).join('')||'<div style="color:var(--muted);">无内容</div>';
@@ -684,7 +721,15 @@ function exportExcel(){
 $('#btnSaveRecord').onclick=()=>{const m=curMember();if(!m){toast('请先选择成员');return;}
   const rec=collectForm();
   if(selType==='输血记录'&&(!rec.trans||!rec.trans.bags.length)){toast('请至少添加一袋');return;}
-  state.records.push(rec);save();renderAll();toast('已保存');};
+  if(editingRec){
+    Object.assign(editingRec,rec,{id:editingRec.id});
+    editingRec=null; $('#btnSaveRecord').textContent='保存记录';
+    toast('已更新'); selType='输血记录'; renderSelType();
+  } else {
+    state.records.push(rec); toast('已保存');
+  }
+  save(); renderAll(); renderForm();
+};
 
 /* 时间线筛选 */
 let tlFilter='全部';
