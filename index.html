@@ -40,6 +40,15 @@
   .member-card .name{font-weight:700;font-size:16px;display:flex;align-items:center;gap:10px;}
   .member-card .count{font-weight:400;color:var(--muted);font-size:12px;}
   .member-card .edit-icon{color:var(--muted);cursor:pointer;border:none;background:none;padding:4px;}
+  .member-tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .member-tab{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;border:1px solid var(--border);background:var(--card);border-radius:999px;cursor:pointer;font-size:13px;transition:.15s;max-width:180px;}
+  .member-tab:hover{border-color:var(--accent);}
+  .member-tab.active{background:var(--accent-soft);border-color:var(--accent);color:var(--accent-dark);font-weight:600;}
+  .member-tab .tab-avatar{font-size:16px;}
+  .member-tab .tab-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:110px;}
+  .member-tab .tab-badge{background:var(--accent);color:#fff;font-size:11px;padding:0 6px;border-radius:8px;font-weight:600;}
+  .member-tab.add{border-style:dashed;color:var(--muted);padding:6px 12px;}
+  .member-tab.add:hover{color:var(--accent);border-color:var(--accent);}
 
   .profile-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);
     padding:14px 18px;margin-bottom:14px;}
@@ -486,10 +495,27 @@ const curMember=()=>state.members.find(m=>m.id===state.current);
 /* ===== 头部 & 成员卡 ===== */
 function renderMemberTop(){
   const m=curMember(); const top=$('#memberTop'); top.innerHTML='';
+  if(state.members.length){
+    const tabs=document.createElement('div'); tabs.className='member-tabs';
+    const realMembers=state.members.filter(x=>x.name);
+    tabs.innerHTML=realMembers.map(x=>{
+      const active=x.id===state.current;
+      const recs=(state.records||[]).filter(r=>r.member===x.id).length;
+      return `<div class="member-tab ${active?'active':''}" data-mid="${esc(x.id)}" title="${esc(x.name)}（${recs} 条记录）">
+        <span class="tab-avatar">${esc(x.emoji||'🧑')}</span>
+        <span class="tab-name">${esc(x.name)}</span>
+        ${recs?`<span class="tab-badge">${recs}</span>`:''}
+      </div>`;
+    }).join('')+`<div class="member-tab add" id="tabAddMember" title="添加成员">＋</div>`;
+    tabs.querySelectorAll('.member-tab[data-mid]').forEach(t=>{t.onclick=()=>{state.current=t.dataset.mid;save();renderAll();};});
+    tabs.querySelector('#tabAddMember').onclick=()=>openMemberModal(null);
+    top.appendChild(tabs);
+  }
   if(!m){top.innerHTML='<div class="empty">请先添加家庭成员</div>';return;}
   const card=document.createElement('div'); card.className='member-card';
   card.innerHTML=`<div class="avatar">${esc(m.emoji||'🧑')}</div>
     <div class="info"><div class="name">${esc(m.name)} ${m.rel?`<span class="count">（${esc(m.rel)}）</span>`:''} <span class="count">${(state.records||[]).filter(r=>r.member===m.id).length} 条记录</span></div></div>
+    <button class="edit-icon" id="btnDelMember" title="删除该成员" style="margin-right:6px;">🗑</button>
     <button class="edit-icon" id="btnEditMember" title="编辑资料">✎</button>`;
   top.appendChild(card);
   const age=m.dob?calcAge(m.dob):null;
@@ -505,6 +531,14 @@ function renderMemberTop(){
   ${(m.hospitals&&m.hospitals.length)?`<div class="hosp-line"><span class="lbl">常用医院：</span>${m.hospitals.map(h=>`${esc(h.name)}${h.phone?` · ${esc(h.phone)}`:''}`).join('  |  ')}</div>`:''}`;
   top.appendChild(profile);
   $('#btnEditMember').onclick=$('#btnEditProfile').onclick=()=>openMemberModal(m);
+  const delBtn=$('#btnDelMember'); if(delBtn) delBtn.onclick=()=>{
+    if(state.members.length<=1){toast('至少保留一名成员');return;}
+    if(!confirm(`确定删除「${m.name}」及其全部记录？此操作不可恢复。`)) return;
+    state.records=state.records.filter(r=>r.member!==m.id);
+    state.members=state.members.filter(x=>x.id!==m.id);
+    state.current=state.members[0]?state.members[0].id:null;
+    save();renderAll();toast('已删除');
+  };
 }
 function calcAge(birth){const b=new Date(birth),now=new Date();let a=now.getFullYear()-b.getFullYear();const m=now.getMonth()-b.getMonth();if(m<0||(m===0&&now.getDate()<b.getDate()))a--;return a;}
 
