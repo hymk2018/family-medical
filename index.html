@@ -393,9 +393,13 @@ function renderForm(){
   } else if(selType==='CBC血常规'){
     html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
       <div class="row2"><div class="form-row"><label>HGB</label><input id="f_hgb" type="number" step="any"></div>
-      <div class="form-row"><label>PLT</label><input id="f_plt" type="number" step="any"></div></div>
+      <div class="form-row"><label>HGB 单位</label><select id="f_hgb_unit"><option value="g/dL">g/dL</option><option value="g/L">g/L</option><option value="">无</option></select></div></div>
+      <div class="row2"><div class="form-row"><label>PLT</label><input id="f_plt" type="number" step="any"></div>
+      <div class="form-row"><label>PLT 单位</label><select id="f_plt_unit"><option value="×10⁹/L">×10⁹/L</option><option value="10³/µL">10³/µL</option><option value="">无</option></select></div></div>
       <div class="row2"><div class="form-row"><label>HCT</label><input id="f_hct" type="number" step="any"></div>
-      <div class="form-row"><label>NEUT</label><input id="f_neut" type="number" step="any"></div></div>`;
+      <div class="form-row"><label>HCT 单位</label><select id="f_hct_unit"><option value="%">%</option><option value="">无</option></select></div></div>
+      <div class="row2"><div class="form-row"><label>NEUT</label><input id="f_neut" type="number" step="any"></div>
+      <div class="form-row"><label>NEUT 单位</label><select id="f_neut_unit"><option value="×10⁹/L">×10⁹/L</option><option value="%">%</option><option value="">无</option></select></div></div>`;
   } else if(selType==='体征测量'){
     html=`<div class="form-row"><label>日期</label><input id="f_date" type="date"></div>
       <div class="row2"><div class="form-row"><label>血压 mmHg</label><input id="f_bp"></div>
@@ -454,7 +458,9 @@ function collectForm(){
     rec.time=$('#f_time')?$('#f_time').value:'';
     rec.visit={doctor:$('#f_doctor').value,dept:$('#f_dept').value,hospital:$('#f_hospital').value};
   } else if(selType==='CBC血常规'){
-    rec.cbc={cHgb:$('#f_hgb').value,cPlt:$('#f_plt').value,cHct:$('#f_hct').value,cNeut:$('#f_neut').value,custom:[]};
+    rec.cbc={cHgb:$('#f_hgb').value,cPlt:$('#f_plt').value,cHct:$('#f_hct').value,cNeut:$('#f_neut').value,
+      uHgb:$('#f_hgb_unit')?$('#f_hgb_unit').value:'',uPlt:$('#f_plt_unit')?$('#f_plt_unit').value:'',
+      uHct:$('#f_hct_unit')?$('#f_hct_unit').value:'',uNeut:$('#f_neut_unit')?$('#f_neut_unit').value:'',custom:[]};
   } else if(selType==='血报告'){
     rec.title=$('#f_title').value;rec.src=$('#f_src').value;rec.note=$('#f_note').value;
   } else if(selType==='用药记录'){
@@ -492,7 +498,9 @@ function renderRecordCard(r){
     const v=r.visit||{}; body=fieldsToHtml([['医生',v.doctor],['科室',v.dept],['医院',v.hospital]]);
     if(r.time)body+=`<div class="kv"><span class="k">时间</span><span>${esc(r.time)}</span></div>`;
   } else if(r.type==='CBC血常规'){
-    const c=r.cbc||{}; body=fieldsToHtml([['HGB',c.cHgb],['PLT',c.cPlt],['HCT',c.cHct],['NEUT',c.cNeut]]);
+    const c=r.cbc||{};
+    const fv=(v,u)=>(v===''||v==null)?'':`${v}${u?(' '+u):''}`;
+    body=fieldsToHtml([['HGB',fv(c.cHgb,c.uHgb)],['PLT',fv(c.cPlt,c.uPlt)],['HCT',fv(c.cHct,c.uHct)],['NEUT',fv(c.cNeut,c.uNeut)]]);
   } else if(r.type==='血报告'){
     body=fieldsToHtml([['报告',r.title],['来源',r.src],['结论',r.note]]);
   } else if(r.type==='用药记录'){
@@ -544,6 +552,8 @@ function enterEditMode(r){
       else v=r[k];
       if(el&&v!=null) el.value=v;
     });
+    const units={hgb_unit:'uHgb',plt_unit:'uPlt',hct_unit:'uHct',neut_unit:'uNeut'};
+    Object.entries(units).forEach(([elKey,cbcKey])=>{const el=document.getElementById('f_'+elKey);if(el&&r.cbc&&r.cbc[cbcKey]!=null)el.value=r.cbc[cbcKey];});
     const sel=$('#f_currency'); if(sel&&r.currency) sel.value=r.currency;
   },50);
   $('#btnSaveRecord').textContent='保存修改';
@@ -573,14 +583,17 @@ function renderCharts(){
   Object.entries(byType).forEach(([type,ss])=>{
     const recs=state.records.filter(r=>r.member===m.id&&r.type===type).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
     if(!recs.length)return;
-    box.insertAdjacentHTML('beforeend',buildLineChart(recs,ss,type));
+    const unitMap={};
+    ss.forEach(s=>{if(type==='CBC血常规'&&s.field){const k='u'+s.field.split('.').pop().replace('c','');const u=(recs[0]&&recs[0].cbc&&recs[0].cbc[k])||'';unitMap[s.field]=u;}});
+    box.insertAdjacentHTML('beforeend',buildLineChart(recs,ss,type,unitMap));
     ss.forEach(s=>{const lg=document.createElement('div');lg.className='lg';
-      lg.innerHTML=`<span class="sw" style="background:${s.color}"></span>${esc(s.label)}`;legend.appendChild(lg);});
+      const u=(type==='CBC血常规'&&unitMap[s.field])?' '+unitMap[s.field]:'';
+      lg.innerHTML=`<span class="sw" style="background:${s.color}"></span>${esc(s.label)}${esc(u)}`;legend.appendChild(lg);});
   });
   if(!box.children.length)box.innerHTML='<div class="chart-empty">所选系列暂无对应数据。</div>';
 }
 function cbcVal(r,field){const c=r.cbc||{};const k=field.split('.').pop();return +(c[k]??0)||0;}
-function buildLineChart(recs,ss,type){
+function buildLineChart(recs,ss,type,unitMap){
   const W=720,H=260,padL=40,padR=20,padT=20,padB=30;
   const allPts={}; let maxV=0;
   ss.forEach(s=>{allPts[s.label]=recs.map(r=>{
@@ -603,7 +616,9 @@ function buildLineChart(recs,ss,type){
     <line x1="${padL}" y1="${padT}" x2="${padL}" y2="${H-padB}" stroke="#e5e7eb"/>`;
   recs.forEach((r,i)=>{const lbl=(r.date||'').slice(5);axis+=`<text x="${x(i)}" y="${H-padB+18}" font-size="11" fill="#9ca3af" text-anchor="middle">${esc(lbl)}</text>`;});
   for(let g=1;g<4;g++){const yy=padT+g*(H-padT-padB)/4;axis+=`<line x1="${padL}" y1="${yy}" x2="${W-padR}" y2="${yy}" stroke="#f3f4f6"/>`;}
-  return `<svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px;">${axis}${paths}</svg>`;
+  const units=[...new Set(ss.map(s=>(unitMap&&unitMap[s.field])||'').filter(Boolean))];
+  const unitNote=units.length?` · 单位：${units.join(' / ')}`:'';
+  return `<div style="color:var(--muted);font-size:12px;margin:4px 0 2px;">${esc(type)}${esc(unitNote)}</div><svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block;max-width:${W}px;">${axis}${paths}</svg>`;
 }
 
 /* ===== 弹窗 ===== */
@@ -701,7 +716,12 @@ function exportExcel(){
   const members=scope==='all'?state.members:state.members.filter(m=>m.id===state.current);
   const rows=[['成员','类型','日期','字段1','值1','字段2','值2','字段3','值3','字段4','值4','字段5','值5']];
   const flat=(r)=>{const o={};if(r.trans)o['袋数']=(r.trans.bags||[]).length,o['合计ml']=(r.trans.bags||[]).reduce((a,b)=>a+(+b||0),0);
-    if(r.cbc)Object.assign(o,{HGB:r.cbc.cHgb,PLT:r.cbc.cPlt,HCT:r.cbc.cHct,NEUT:r.cbc.cNeut});
+    if(r.cbc)Object.assign(o,{
+      HGB:(r.cbc.cHgb?r.cbc.cHgb+(r.cbc.uHgb?' '+r.cbc.uHgb:''):''),
+      PLT:(r.cbc.cPlt?r.cbc.cPlt+(r.cbc.uPlt?' '+r.cbc.uPlt:''):''),
+      HCT:(r.cbc.cHct?r.cbc.cHct+(r.cbc.uHct?' '+r.cbc.uHct:''):''),
+      NEUT:(r.cbc.cNeut?r.cbc.cNeut+(r.cbc.uNeut?' '+r.cbc.uNeut:''):'')
+    });
     if(r.visit)Object.assign(o,{医生:r.visit.doctor,科室:r.visit.dept,医院:r.visit.hospital});
     if(r.vitals)Object.assign(o,{血压:r.vitals.bp,体温:r.vitals.temp,心率:r.vitals.hr,血氧:r.vitals.spo2});
     if(r.drug)o['药物']=r.drug;if(r.cycle)o['周期']=r.cycle;
