@@ -514,8 +514,11 @@ function renderRecordCard(r){
   } else if(r.type==='住院记录'){
     body=fieldsToHtml([['原因',r.title],['病房',r.ward],['医院',r.hospital],['起',r.startDate],['止',r.endDate]]);
   } else { body=''; }
+  let headerDate=esc(r.date||'');
+  if(r.type==='化疗记录'){const s=r.startDate||'',e=r.endDate||'';headerDate=s?(e?(s+' ~ '+e):s):'';}
+  else if(r.type==='住院记录'){const s=r.startDate||'',e=r.endDate||'';headerDate=s?(e?(s+' ~ '+e):s):'';}
   d.innerHTML=`<div class="rhead"><div><span class="rtag">${esc(r.type)}</span>
-    <span class="rdate">${esc(r.date||'')}</span></div>
+    <span class="rdate">${headerDate}</span></div>
     <button class="del-btn" data-edit="${r.id}" style="margin-right:6px;">编辑</button>
     <button class="del-btn" data-del="${r.id}">删除</button></div><div>${body}</div>`;
   d.querySelector('[data-del]').onclick=()=>{if(confirm('删除这条记录？')){state.records=state.records.filter(x=>x.id!==r.id);save();renderAll();}};
