@@ -153,6 +153,9 @@
   </div>
 
   <div class="stats" id="statGrid"></div>
+  <div style="text-align:right;margin:-6px 0 14px;">
+    <button class="btn" id="btnStatsConfig">📊 统计设置</button>
+  </div>
 
   <div class="main">
     <div class="form-card">
@@ -280,6 +283,34 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- 统计设置 -->
+<div class="modal-mask" id="statsModal">
+  <div class="modal" style="max-width:560px;">
+    <h3>📊 统计设置（每个成员独立保存）</h3>
+    <p style="color:var(--muted);font-size:12px;margin:0 0 10px;">勾选要显示的默认项；或自定义统计（按记录类型聚合某个数值字段）。</p>
+    <div id="statsList" style="margin-bottom:8px;"></div>
+    <div style="border-top:1px dashed var(--border);padding-top:10px;margin-top:6px;">
+      <div style="font-weight:600;font-size:13px;margin-bottom:8px;">＋ 添加自定义统计</div>
+      <div class="form-row"><label>显示名称</label><input id="cs_label" placeholder="如 CBC 平均 HGB"></div>
+      <div class="row2">
+        <div class="form-row"><label>记录类型</label>
+          <select id="cs_type"></select>
+        </div>
+        <div class="form-row"><label>聚合方式</label>
+          <select id="cs_agg"><option value="count">条数</option><option value="sum">求和</option><option value="avg">平均值</option><option value="max">最大</option><option value="min">最小</option><option value="latest">最近一次</option></select>
+        </div>
+      </div>
+      <div class="form-row" id="cs_field_row" style="display:none;"><label>数值字段</label>
+        <select id="cs_field"></select>
+      </div>
+      <button class="btn" id="btnAddCustom" style="width:100%;">＋ 添加</button>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" data-close="statsModal">完成</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== 数据层：兼容用户原版 schema ===== */
 const STORE_KEY='family_medical_v3';
@@ -292,9 +323,34 @@ function load(){
   const def=defaultState(); def.current=def.members[0].id; return def;
 }
 function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+// 每个成员的默认统计配置（3 个默认项，默认可见）
+function defaultStatStats(){
+  return [
+    {kind:'default',key:'chemo_cycles',label:'化疗总周期',enabled:true},
+    {kind:'default',key:'transfusion_ml',label:'输血总 ml',enabled:true},
+    {kind:'default',key:'transfusion_bags',label:'输血总袋数',enabled:true}
+  ];
+}
+// 自定义统计可用的数值字段（按记录类型）
+const STAT_FIELDS={
+  '输血记录':[{v:'bags_ml',t:'输血合计 ml'},{v:'bags_count',t:'输血袋数'}],
+  '化疗记录':[{v:'cycle',t:'周期数'}],
+  'CBC血常规':[{v:'cbc.cHgb',t:'HGB'},{v:'cbc.cPlt',t:'PLT'},{v:'cbc.cHct',t:'HCT'},{v:'cbc.cNeut',t:'NEUT'}],
+  '体征测量':[{v:'vitals.bp',t:'血压'},{v:'vitals.temp',t:'体温'},{v:'vitals.hr',t:'心率'},{v:'vitals.spo2',t:'血氧'}],
+  '医疗费用':[{v:'amount',t:'金额'}],
+  '住院记录':[{v:'days',t:'住院天数'}],
+  '用药记录':[],
+  '看诊预约':[],
+  '血报告':[],
+  '其他':[]
+};
+// 确保成员有 statStats 字段（兼容老数据）
+function ensureStatStats(m){ if(!m.statStats){ m.statStats=defaultStatStats(); } return m.statStats; }
+// 确保 current 指向有效成员
+function ensureCurrent(){ if(!state.members.find(m=>m.id===state.current)){ state.current=state.members[0]?state.members[0].id:null; } }
 // 首次无数据时的默认结构（用户导入后会覆盖）
 function defaultState(){
-  return {members:[{id:'m'+Date.now(),name:'',emoji:'🧑',dob:'',blood:'',weight:'',height:'',hospitals:[],files:[],chartSeries:[]}],
+  return {members:[{id:'m'+Date.now(),name:'',emoji:'🧑',dob:'',blood:'',weight:'',height:'',hospitals:[],files:[],chartSeries:[],statStats:defaultStatStats()}],
     records:[],current:null,theme:'forest'};
 }
 const uid=()=>'r'+Date.now()+Math.floor(Math.random()*1000);
@@ -342,26 +398,58 @@ function renderFiles(){
   });
 }
 
-/* ===== 统计（用原版逻辑） ===== */
+/* ===== 统计（按成员自定义配置） ===== */
+// 取某条记录里某字段的数值（支持 cbc.cHgb / vitals.bp / amount / days / cycle / bags_ml / bags_count）
+function statFieldVal(r,field){
+  if(field==='bags_ml'){const b=(r.trans&&r.trans.bags)||[];return b.reduce((a,x)=>a+(+x||0),0);}
+  if(field==='bags_count'){return (r.trans&&r.trans.bags)?r.trans.bags.length:0;}
+  if(field==='days'){return dateDiffDays(r.startDate,r.endDate);}
+  const parts=field.split('.'); let v=r;
+  for(const p of parts){ if(v==null)return null; v=v[p]; }
+  return (v===undefined||v===null||v==='')?null:+v||0;
+}
+function dateDiffDays(a,b){ if(!a||!b)return 0; const d=(new Date(b)-new Date(a))/86400000; return d>0?Math.round(d)+1:0; }
+// 计算单个默认/自定义统计项的值
+function computeStat(m,item){
+  const recs=state.records.filter(r=>r.member===m.id);
+  if(item.kind==='default'){
+    if(item.key==='chemo_cycles') return recs.filter(r=>r.type==='化疗记录').length;
+    if(item.key==='transfusion_ml'){const t=recs.filter(r=>r.type==='输血记录');return Math.round(t.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.reduce((a,b)=>a+(+b||0),0):0),0));}
+    if(item.key==='transfusion_bags'){const t=recs.filter(r=>r.type==='输血记录');return t.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.length:0),0);}
+    return 0;
+  }
+  // custom
+  const tr=recs.filter(r=>r.type===item.type);
+  if(!tr.length) return {v:0,empty:true};
+  if(item.agg==='count') return {v:tr.length};
+  const vals=tr.map(r=>statFieldVal(r,item.field)).filter(v=>v!=null&&!isNaN(v));
+  if(!vals.length) return {v:'—',empty:true};
+  let res;
+  if(item.agg==='sum') res=vals.reduce((a,b)=>a+b,0);
+  else if(item.agg==='avg') res=vals.reduce((a,b)=>a+b,0)/vals.length;
+  else if(item.agg==='max') res=Math.max(...vals);
+  else if(item.agg==='min') res=Math.min(...vals);
+  else if(item.agg==='latest') res=vals[vals.length-1];
+  else res=vals.length;
+  // 取合适精度
+  if(typeof res==='number'){ res=Math.round(res*100)/100; }
+  return {v:res};
+}
 function renderStats(){
   const m=curMember(); const g=$('#statGrid'); g.innerHTML='';
   if(!m)return;
-  const recs=state.records.filter(r=>r.member===m.id);
-  const trans=recs.filter(r=>r.type==='输血记录');
-  const chemo=recs.filter(r=>r.type==='化疗记录');
-  const totalBags=trans.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.length:0),0);
-  const totalMl=trans.reduce((s,r)=>s+((r.trans&&r.trans.bags)?r.trans.bags.reduce((a,b)=>a+(+b||0),0):0),0);
-  const base=[
-    {val:chemo.length,lbl:'化疗总周期'},
-    {val:Math.round(totalMl),lbl:'输血总 ml'},
-    {val:totalBags,lbl:'输血总袋数'}
-  ];
-  [...base].forEach(s=>{
+  ensureStatStats(m);
+  m.statStats.filter(s=>s.enabled).forEach(item=>{
+    let val, sub='';
+    if(item.kind==='default'){ val=computeStat(m,item); }
+    else { const r=computeStat(m,item); val=r.v; sub=(r.empty?'':''); }
     const d=document.createElement('div');d.className='stat';
-    d.innerHTML=`<div class="num">${fmt(s.val)}</div><div class="lbl">${esc(s.lbl)}</div>`;g.appendChild(d);
+    d.innerHTML=`<div class="num">${fmt(val)}</div><div class="lbl">${esc(item.label)}</div>`;
+    g.appendChild(d);
   });
-  const add=document.createElement('div');add.className='stat-add';add.textContent='＋ 自定义';
-  add.onclick=toast('自定义统计可后续添加');g.appendChild(add);
+  if(!m.statStats.filter(s=>s.enabled).length){
+    g.innerHTML='<div class="empty">未选择任何统计，点「📊 统计设置」添加</div>';
+  }
 }
 
 /* ===== 表单（按原版字段） ===== */
@@ -655,7 +743,7 @@ $('#btnSaveMember').onclick=()=>{
   const hospitals=[...document.querySelectorAll('#hospitalList .hosp-row')].map(r=>({name:r.querySelector('.h-name').value,phone:r.querySelector('.h-phone').value})).filter(h=>h.name);
   const w=+$('#mWeight').value,h=+$('#mHeight').value;
   if(editingMember){Object.assign(editingMember,{name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals});}
-  else{const nm={id:'m'+Date.now(),name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals,files:[],chartSeries:[]};state.members.push(nm);if(!state.current)state.current=nm.id;}
+  else{const nm={id:'m'+Date.now(),name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals,files:[],chartSeries:[],statStats:defaultStatStats()};state.members.push(nm);if(!state.current)state.current=nm.id;}
   save();closeModal('memberModal');renderAll();
 };
 
@@ -669,6 +757,58 @@ function applyTheme(){
   const t=(state&&state.theme)||'forest';
   document.documentElement.setAttribute('data-theme',t);
 }
+
+/* 统计设置 */
+$('#btnStatsConfig').onclick=()=>{renderStatsEditor();openModal('statsModal');};
+function renderStatsEditor(){
+  const m=curMember(); if(!m)return; ensureStatStats(m);
+  const box=$('#statsList'); box.innerHTML='';
+  m.statStats.forEach((s,i)=>{
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--border);font-size:13px;';
+    const isDef=s.kind==='default';
+    const tag=isDef?'<span style="color:var(--muted);font-size:11px;">默认</span>':'<span style="color:var(--accent);font-size:11px;">自定义</span>';
+    let desc='';
+    if(!isDef){
+      const aggMap={count:'条数',sum:'求和',avg:'平均',max:'最大',min:'最小',latest:'最近'};
+      const fld=STAT_FIELDS[s.type]?STAT_FIELDS[s.type].find(f=>f.v===s.field):null;
+      desc=`<span style="color:var(--muted);">${esc(s.type)} · ${aggMap[s.agg]||s.agg}${fld?(' · '+fld.t):''}</span>`;
+    }
+    row.innerHTML=`<input type="checkbox" class="st-enable" ${s.enabled?'checked':''} style="width:auto;">
+      <span style="flex:1;"><b>${esc(s.label)}</b> ${tag} ${desc}</span>`;
+    if(!isDef) row.innerHTML+=`<button class="btn ghost st-del" style="color:var(--danger);padding:2px 8px;">✕</button>`;
+    row.querySelector('.st-enable').onchange=e=>{m.statStats[i].enabled=e.target.checked;save();renderStats();};
+    const del=row.querySelector('.st-del'); if(del) del.onclick=()=>{m.statStats.splice(i,1);save();renderStatsEditor();renderStats();};
+    box.appendChild(row);
+  });
+  if(!m.statStats.length) box.innerHTML='<div class="empty" style="padding:12px 0;">暂无统计项，添加一个吧</div>';
+  // 类型下拉
+  const ct=$('#cs_type'); ct.innerHTML=TYPES.map(t=>`<option>${t}</option>`).join('');
+  updateFieldOptions();
+  ct.onchange=updateFieldOptions;
+  $('#cs_agg').onchange=updateFieldOptions;
+}
+function updateFieldOptions(){
+  const t=$('#cs_type').value; const agg=$('#cs_agg').value;
+  const fields=STAT_FIELDS[t]||[];
+  const row=$('#cs_field_row');
+  if(agg==='count'||!fields.length){ row.style.display='none'; $('#cs_field').innerHTML=''; }
+  else{
+    row.style.display=''; 
+    $('#cs_field').innerHTML=fields.map(f=>`<option value="${f.v}">${f.t}</option>`).join('');
+  }
+}
+$('#btnAddCustom').onclick=()=>{
+  const m=curMember(); if(!m){toast('请先选择成员');return;}
+  const label=$('#cs_label').value.trim(); const type=$('#cs_type').value; const agg=$('#cs_agg').value;
+  if(!label){toast('请填显示名称');return;}
+  const item={kind:'custom',label,type,agg};
+  if(agg!=='count'){ const f=$('#cs_field').value; if(!f){toast('请选择数值字段');return;} item.field=f; }
+  ensureStatStats(m);
+  m.statStats.push(item); save(); renderStatsEditor(); renderStats();
+  $('#cs_label').value='';
+  toast('已添加自定义统计');
+};
 
 /* 配置图表 */
 $('#btnCfgChart').onclick=()=>{renderSeriesEditor();openModal('chartModal');};
@@ -703,7 +843,7 @@ function setupIO(){
   $('#btnImport').onclick=()=>$('#fileInput').click();
   $('#fileInput').onchange=e=>{const f=e.target.files[0];if(!f)return;
     const rd=new FileReader();rd.onload=()=>{try{const d=JSON.parse(rd.result);
-      if(d&&d.members&&d.records){state=d;save();renderAll();toast('导入成功');}else toast('文件格式不正确');}catch(e){toast('解析失败');}};rd.readAsText(f);};
+      if(d&&d.members&&d.records){state=d;d.members.forEach(m=>ensureStatStats(m));ensureCurrent();save();renderAll();toast('导入成功');}else toast('文件格式不正确');}catch(e){toast('解析失败');}};rd.readAsText(f);};
   $('#btnExportExcel').onclick=()=>{
     const box=$('#expTypes');box.innerHTML=TYPES.map(t=>`<label class="pill" style="cursor:pointer;"><input type="checkbox" class="exp-type" value="${t}" checked> ${t}</label>`).join('');
     openModal('exportModal');};
