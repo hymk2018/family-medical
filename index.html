@@ -412,14 +412,23 @@ async function doSyncPush(){
     if(r.ok) showSyncState('已同步'); else showSyncState('同步失败');
   }catch(e){ showSyncState('同步错误'); }
 }
-// 拉取远端覆盖本地（启动时 + 手动按钮）
+// 拉取远端覆盖本地（仅当远端有数据时；空远端不会清空本地）
 async function doSyncPull(showToast){
   const tk=getSyncToken(); if(!tk){ if(showToast) toast('未连接同步'); return; }
   showSyncState('同步中…');
   const cur=await fetchRemote();
-  if(!cur||!cur.data){ showSyncState(isSyncOn()?'已连接':'未连接'); if(showToast) toast('远端暂无数据'); return; }
+  if(!cur||!cur.data||!cur.data.members||cur.data.members.length===0){
+    showSyncState(isSyncOn()?'已连接':'未连接'); if(showToast) toast('远端暂无数据，已保留本机数据'); return;
+  }
   state=cur.data; ensureAll(); save(); renderAll();
   showSyncState('已同步'); if(showToast) toast('已从云端加载');
+}
+// 上传本地到云端（本机数据为准）
+async function doSyncUpload(showToast){
+  const tk=getSyncToken(); if(!tk){ if(showToast) toast('未连接同步'); return; }
+  showSyncState('同步中…');
+  await doSyncPush();
+  if(showToast) toast('已上传到云端');
 }
 function ensureAll(){ state.members.forEach(m=>ensureStatStats(m)); ensureCurrent(); }
 function showSyncState(txt){ const el=document.getElementById('syncState'); if(el) el.textContent=txt; }
@@ -434,17 +443,25 @@ function setupSyncUI(){
       <input id="syncToken" type="password" placeholder="ghp_..." value="${esc(tk)}"></div>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button class="btn primary" id="btnSyncSave">保存并连接</button>
-      <button class="btn" id="btnSyncNow">立即同步（拉取）</button>
+      <button class="btn" id="btnSyncNow">☁ 拉取云端</button>
+      <button class="btn" id="btnSyncUp">⬆ 上传本机到云端</button>
       <button class="btn ghost" id="btnSyncOff" style="color:var(--danger);">断开</button>
       <span id="syncState" style="align-self:center;color:var(--muted);font-size:12px;">${isSyncOn()?'已连接':'未连接'}</span>
     </div>
-    <div style="color:var(--muted);font-size:11px;margin-top:6px;">token 需具备 repo 权限。连接后，任意设备改动会自动同步；首次请点「立即同步」把云端数据载入本机。</div>`;
-  document.getElementById('btnSyncSave').onclick=()=>{
+    <div style="color:var(--muted);font-size:11px;margin-top:6px;">token 需具备 repo 权限。连接时：若云端为空则自动上传本机数据；若云端已有数据则拉取。日常改动会自动上传云端。</div>`;
+  document.getElementById('btnSyncSave').onclick=async()=>{
     const v=document.getElementById('syncToken').value.trim();
     if(!v){ toast('请输入 token'); return; }
-    setSyncToken(v); showSyncState('已连接'); toast('已连接，正在拉取云端数据…'); doSyncPull(true);
+    setSyncToken(v); showSyncState('已连接');
+    const cur=await fetchRemote();
+    if(!cur||!cur.data||!cur.data.members||cur.data.members.length===0){
+      toast('云端为空，正在上传本机数据…'); doSyncUpload(true);
+    } else {
+      toast('云端已有数据，正在拉取…'); doSyncPull(true);
+    }
   };
   document.getElementById('btnSyncNow').onclick=()=>doSyncPull(true);
+  document.getElementById('btnSyncUp').onclick=()=>doSyncUpload(true);
   document.getElementById('btnSyncOff').onclick=()=>{ setSyncToken(''); showSyncState('未连接'); toast('已断开同步'); renderAll(); };
 }
 // 首次打开时若无本地数据但有 token，自动拉取
@@ -849,7 +866,7 @@ $('#btnSaveMember').onclick=()=>{
   const hospitals=[...document.querySelectorAll('#hospitalList .hosp-row')].map(r=>({name:r.querySelector('.h-name').value,phone:r.querySelector('.h-phone').value})).filter(h=>h.name);
   const w=+$('#mWeight').value,h=+$('#mHeight').value;
   if(editingMember){Object.assign(editingMember,{name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals});}
-  else{const nm={id:'m'+Date.now(),name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals,files:[],chartSeries:[],statStats:defaultStatStats()};state.members.push(nm);if(!state.current)state.current=nm.id;}
+  else{const nm={id:'m'+Date.now(),name,rel:$('#mRel').value.trim(),emoji:$('#mEmoji').value.trim(),dob:$('#mDob').value,blood:$('#mBlood').value,weight:w||'',height:h||'',hospitals,files:[],chartSeries:[],statStats:defaultStatStats()};state.members.push(nm);state.current=nm.id;}
   save();closeModal('memberModal');renderAll();
 };
 
