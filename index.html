@@ -155,6 +155,7 @@
   <div class="stats" id="statGrid"></div>
   <div style="text-align:right;margin:-6px 0 14px;">
     <button class="btn" id="btnStatsConfig">📊 统计设置</button>
+    <button class="btn" id="btnSyncConfig">🔗 同步设置</button>
   </div>
 
   <div class="main">
@@ -311,6 +312,17 @@
   </div>
 </div>
 
+<!-- 同步设置 -->
+<div class="modal-mask" id="syncModal">
+  <div class="modal" style="max-width:520px;">
+    <h3>🔗 多设备自动同步</h3>
+    <div id="syncBox"></div>
+    <div class="modal-actions">
+      <button class="btn" data-close="syncModal">关闭</button>
+    </div>
+  </div>
+</div>
+
 <script>
 /* ===== 数据层：兼容用户原版 schema ===== */
 const STORE_KEY='family_medical_v3';
@@ -322,7 +334,7 @@ function load(){
   try{const d=JSON.parse(localStorage.getItem(STORE_KEY));if(d&&d.members)return d;}catch(e){}
   const def=defaultState(); def.current=def.members[0].id; return def;
 }
-function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));scheduleSync();}
 // 每个成员的默认统计配置（3 个默认项，默认可见）
 function defaultStatStats(){
   return [
@@ -348,6 +360,100 @@ const STAT_FIELDS={
 function ensureStatStats(m){ if(!m.statStats){ m.statStats=defaultStatStats(); } return m.statStats; }
 // 确保 current 指向有效成员
 function ensureCurrent(){ if(!state.members.find(m=>m.id===state.current)){ state.current=state.members[0]?state.members[0].id:null; } }
+
+// Unicode 安全的 base64（兼容中文，跨浏览器/环境）
+function utf8ToB64(str){
+  const bytes=new TextEncoder().encode(str);
+  let bin=''; for(const b of bytes) bin+=String.fromCharCode(b);
+  return btoa(bin);
+}
+function b64ToUtf8(b64){
+  const bin=atob(b64); const bytes=new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
+/* ===== 自动同步（GitHub 私有仓库 sync/data.json，token 仅存本地浏览器） ===== */
+const SYNC_REPO='hymk2018/family-medical';
+const SYNC_PATH='sync/data.json';
+const TOKEN_KEY='family_medical_sync_token';
+function getSyncToken(){ return localStorage.getItem(TOKEN_KEY)||''; }
+function setSyncToken(t){ if(t) localStorage.setItem(TOKEN_KEY,t); else localStorage.removeItem(TOKEN_KEY); }
+function isSyncOn(){ return !!getSyncToken(); }
+
+// 防抖自动保存
+let _syncTimer=null;
+function scheduleSync(){ if(!isSyncOn()) return; clearTimeout(_syncTimer); _syncTimer=setTimeout(()=>doSyncPush(),2000); }
+
+// 读取远端 data.json（返回 {sha, data} 或 null）
+async function fetchRemote(){
+  const tk=getSyncToken(); if(!tk) return null;
+  try{
+    const r=await fetch(`https://api.github.com/repos/${SYNC_REPO}/contents/${SYNC_PATH}`,{headers:{Authorization:'Bearer '+tk,Accept:'application/vnd.github+json'}});
+    if(r.status===404) return {sha:null,data:null};
+    if(!r.ok) return null;
+    const j=await r.json();
+    const txt=b64ToUtf8(j.content.replace(/\n/g,''));
+    return {sha:j.sha, data:JSON.parse(txt)};
+  }catch(e){ return null; }
+}
+// 推送本地到远端（处理并发：先取最新 sha）
+async function doSyncPush(){
+  const tk=getSyncToken(); if(!tk) return;
+  const payload=JSON.stringify(state);
+  const content=utf8ToB64(payload);
+  try{
+    const cur=await fetchRemote();
+    const body={message:'sync data',content,branch:'main'};
+    if(cur&&cur.sha) body.sha=cur.sha;
+    const r=await fetch(`https://api.github.com/repos/${SYNC_REPO}/contents/${SYNC_PATH}`,{
+      method:'PUT',headers:{Authorization:'Bearer '+tk,'Content-Type':'application/json',Accept:'application/vnd.github+json'},
+      body:JSON.stringify(body)});
+    if(r.ok) showSyncState('已同步'); else showSyncState('同步失败');
+  }catch(e){ showSyncState('同步错误'); }
+}
+// 拉取远端覆盖本地（启动时 + 手动按钮）
+async function doSyncPull(showToast){
+  const tk=getSyncToken(); if(!tk){ if(showToast) toast('未连接同步'); return; }
+  showSyncState('同步中…');
+  const cur=await fetchRemote();
+  if(!cur||!cur.data){ showSyncState(isSyncOn()?'已连接':'未连接'); if(showToast) toast('远端暂无数据'); return; }
+  state=cur.data; ensureAll(); save(); renderAll();
+  showSyncState('已同步'); if(showToast) toast('已从云端加载');
+}
+function ensureAll(){ state.members.forEach(m=>ensureStatStats(m)); ensureCurrent(); }
+function showSyncState(txt){ const el=document.getElementById('syncState'); if(el) el.textContent=txt; }
+
+/* ===== 同步 UI ===== */
+function setupSyncUI(){
+  const box=document.getElementById('syncBox'); if(!box) return;
+  const tk=getSyncToken();
+  box.innerHTML=`
+    <div style="font-size:13px;margin-bottom:8px;">🔗 多设备自动同步（数据存于你的私有仓库 <code>sync/data.json</code>）</div>
+    <div class="form-row"><label>GitHub Token（仅存本机浏览器，不会写入代码）</label>
+      <input id="syncToken" type="password" placeholder="ghp_..." value="${esc(tk)}"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn primary" id="btnSyncSave">保存并连接</button>
+      <button class="btn" id="btnSyncNow">立即同步（拉取）</button>
+      <button class="btn ghost" id="btnSyncOff" style="color:var(--danger);">断开</button>
+      <span id="syncState" style="align-self:center;color:var(--muted);font-size:12px;">${isSyncOn()?'已连接':'未连接'}</span>
+    </div>
+    <div style="color:var(--muted);font-size:11px;margin-top:6px;">token 需具备 repo 权限。连接后，任意设备改动会自动同步；首次请点「立即同步」把云端数据载入本机。</div>`;
+  document.getElementById('btnSyncSave').onclick=()=>{
+    const v=document.getElementById('syncToken').value.trim();
+    if(!v){ toast('请输入 token'); return; }
+    setSyncToken(v); showSyncState('已连接'); toast('已连接，正在拉取云端数据…'); doSyncPull(true);
+  };
+  document.getElementById('btnSyncNow').onclick=()=>doSyncPull(true);
+  document.getElementById('btnSyncOff').onclick=()=>{ setSyncToken(''); showSyncState('未连接'); toast('已断开同步'); renderAll(); };
+}
+// 首次打开时若无本地数据但有 token，自动拉取
+async function autoPullIfNeeded(){
+  if(!isSyncOn()) return;
+  let empty=true;
+  try{ const local=localStorage.getItem(STORE_KEY); if(local){ const d=JSON.parse(local); if(d.members&&d.members.some(m=>m.name)) empty=false; } }catch(e){}
+  if(empty){ await doSyncPull(false); }
+}
 // 首次无数据时的默认结构（用户导入后会覆盖）
 function defaultState(){
   return {members:[{id:'m'+Date.now(),name:'',emoji:'🧑',dob:'',blood:'',weight:'',height:'',hospitals:[],files:[],chartSeries:[],statStats:defaultStatStats()}],
@@ -760,6 +866,7 @@ function applyTheme(){
 
 /* 统计设置 */
 $('#btnStatsConfig').onclick=()=>{renderStatsEditor();openModal('statsModal');};
+$('#btnSyncConfig').onclick=()=>{setupSyncUI();openModal('syncModal');};
 function renderStatsEditor(){
   const m=curMember(); if(!m)return; ensureStatStats(m);
   const box=$('#statsList'); box.innerHTML='';
@@ -905,6 +1012,8 @@ function renderAll(){
 }
 function init(){
   applyTheme();setupTheme();setupIO();renderSelType();renderForm();renderTlFilter();renderAll();
+  setupSyncUI();
+  autoPullIfNeeded();
 }
 init();
 </script>
